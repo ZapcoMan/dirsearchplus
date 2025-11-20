@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html style="height: auto;"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>Packer Fuzzer</title>
@@ -8,12 +9,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- 图标 -->
   <link rel="icon" href="">
-  <link rel="stylesheet" href="./res/all.min.css">
-  <link rel="stylesheet" href="./res/adminlte.min.css">
-  <link rel="stylesheet" href="./res/OverlayScrollbars.min.css">
-  <link rel="stylesheet" href="./res/ionicons.min.css">
-  <link href="./res/css" rel="stylesheet">
-    <link rel="stylesheet" href="./res/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="res/all.min.css">
+  <link rel="stylesheet" href="res/adminlte.min.css">
+  <link rel="stylesheet" href="res/OverlayScrollbars.min.css">
+  <link rel="stylesheet" href="res/ionicons.min.css">
+  <link href="res/css" rel="stylesheet">
+    <link rel="stylesheet" href="res/dataTables.bootstrap4.min.css">
      <style type="text/css" media="print">
         @page { size: landscape; }
         @media print {
@@ -32,19 +33,19 @@
       <li class="nav-item">
           <a id="nbar" class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
         </li>
-        <li class="nav-item d-none d-sm-inline-block"><a class="nav-link"><b>API 模糊检测报告</b></a></li>
+        <li class="nav-item d-none d-sm-inline-block"><a class="nav-link"><b>Rapport sur la détection floue de l'API</b></a></li>
     </ul>
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
-        <li class="nav-item d-none d-sm-inline-block"><a data-toggle="modal" data-target="#mobsf" class="nav-link">MobSF主题</a></li>
-        <li class="nav-item d-none d-sm-inline-block"><a data-toggle="modal" data-target="#about-us" class="nav-link">关于我们</a></li>
-        <li class="nav-item d-none d-sm-inline-block"><a href="mailto:admin@hackinn.com?subject=[!]%20Packer%20Fuzzer%20Feedback" class="nav-link">反馈</a></li>
+        <li class="nav-item d-none d-sm-inline-block"><a data-toggle="modal" data-target="#mobsf" class="nav-link">Thème du MobSF</a></li>
+        <li class="nav-item d-none d-sm-inline-block"><a data-toggle="modal" data-target="#about-us" class="nav-link">À propos de nous</a></li>
+        <li class="nav-item d-none d-sm-inline-block"><a href="mailto:admin@hackinn.com?subject=[!]%20Packer%20Fuzzer%20Feedback" class="nav-link">Retour d'information</a></li>
     </ul>
 
     <!-- SEARCH FORM -->
-    <form class="form-inline ml-3" action="https://www.baidu.com/s" method="GET">
+    <form class="form-inline ml-3" action="https://www.google.fr/search" method="GET">
       <div class="input-group input-group-sm">
-        <input class="form-control form-control-navbar" id="navbar-search-input" type="search" placeholder="有疑问？百度一下" name="wd" aria-label="Search">
+        <input class="form-control form-control-navbar" id="navbar-search-input" type="search" placeholder="Questions? Google" name="q" aria-label="Search">
         <div class="input-group-append">
           <button class="btn btn-navbar" type="submit">
             <i class="fas fa-search"></i>
@@ -62,7 +63,7 @@
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
     <a href="#" class="brand-link">
-      <img src="./res/images.jpeg" alt="MobSF" class="brand-image" style="opacity: .8">
+      <img src="res/images.jpeg" alt="MobSF" class="brand-image" style="opacity: .8">
       <span class="brand-text logo-lg">  Packer<strong> Fuzzer</strong></span>
     </a>
 
@@ -72,7 +73,7 @@
         <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="info">
-          <a class="d-block">Version 1.4 (中文 zh_CN)</a>
+          <a class="d-block">Version 1.4 (Français fr_FR)</a>
         </div>
       </div>
 
@@ -87,28 +88,28 @@
            <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fa fa-file"></i>
-              <p>基础信息<i class="fas fa-angle-left right"></i>
+              <p>Informations de base<i class="fas fa-angle-left right"></i>
               </p>
             </a>
             <ul class="nav nav-treeview" style="display: block;">
               <li class="nav-item">
               <a href="#information" class="nav-link">
                 <i class="fas fa-info-circle nav-icon"></i>
-                <p>报告摘要</p>
+                <p>Résumé du rapport</p>
               </a>
               </li>
 
                 <li class="nav-item">
                 <a href="#js_info" class="nav-link">
                   <i class="fas fa-database nav-icon"></i>
-                  <p>Js信息</p>
+                  <p>JS Information</p>
                 </a>
               </li>
 
                 <li class="nav-item">
                 <a href="#nor_info" class="nav-link">
                   <i class="fas fa-exclamation nav-icon"></i>
-                  <p>免责声明</p>
+                  <p>Clause de non-responsabilité</p>
                 </a>
                 </li>
 
@@ -120,7 +121,7 @@
           <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fa fa-bug"></i>
-              <p>漏洞详情<i class="fas fa-angle-left right"></i>
+              <p>Détails sur la vulnérabilité<i class="fas fa-angle-left right"></i>
               </p>
             </a>
             <ul class="nav nav-treeview" style="display: block;">
@@ -133,14 +134,14 @@
           <li class="nav-item">
             <a href="#api_list" class="nav-link">
               <i class="nav-icon fa fa-list-ol"></i>
-              <p>API清单</p>
+              <p>Liste des API</p>
             </a>
           </li>
           <li class="nav-item">
            <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fa fa-plus"></i>
-              <p>安全建议<i class="fas fa-angle-left right"></i>
+              <p>Recommandations en sécurité<i class="fas fa-angle-left right"></i>
               </p>
             </a>
             <ul class="nav nav-treeview" style="display: block;">
@@ -150,7 +151,7 @@
           <li class="nav-item">
             <a href="#other" class="nav-link">
               <i class="fas fa-globe nav-icon"></i>
-              <p>附录</p>
+              <p>Annexe</p>
             </a>
           </li>
           <li class="nav-item has-treeview menu-open">
@@ -167,7 +168,7 @@
           <li class="nav-item">
             <a href="javascript:window.print()" class="nav-link">
             <i class="nav-icon fas fa-print"></i>
-            <p>打印</p>
+            <p>Impression</p>
             </a>
           </li>
         </ul>
@@ -191,13 +192,13 @@
 	<div class="modal-dialog">
 		<div class="modal-content">
       <div class="modal-header">
-        <h6 class="modal-title">我们使用了MobSF的主题...</h4>
+        <h6 class="modal-title">Nous avons utilisé le thème de MobSF...</h6>
       </div>
 			<div class="modal-body">
 				<div class="box-body no-padding">
 					<p>
-						移动安全框架（MobSF）是一种自动化的多合一移动应用程序（Android / iOS / Windows）可以进行静态和动态分析的笔测试，恶意软件分析和安全评估框架。<br><br>
-            项目地址：<a href="https://github.com/MobSF/Mobile-Security-Framework-MobSF">https://github.com/MobSF/Mobile-Security-Framework-MobSF</a><br><br>
+						Mobile Security Framework (MobSF) est une application mobile tout-en-un automatisée (Android / iOS / Windows) qui peut effectuer des analyses statiques et dynamiques pour les tests au stylet, l'analyse des logiciels malveillants et le cadre d'évaluation de la sécurité.<br><br>
+            Adresse du projet: <a href="https://github.com/MobSF/Mobile-Security-Framework-MobSF">https://github.com/MobSF/Mobile-Security-Framework-MobSF</a><br><br>
             © 2023 Mobile Security Framework - MobSF | <a href="https://ajinabraham.com/">Ajin Abraham</a> | <a href="https://opensecurity.in/">OpenSecurity</a>.
 					</p>
 				</div>
@@ -210,18 +211,18 @@
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h6 class="modal-title">关于我们...</h4>
+				<h6 class="modal-title">À propos de nous...</h6>
 			</div>
 			<div class="modal-body">
 				<div class="box-body no-padding">
 					<p>
-						本HTML报告的中文贡献者是：Lupin-III<br><br>
+						Le contributeur francophone à ce rapport HTML est : RachesseHS<br><br>
 
-            Packer Fuzzer是一款针对Webpack等前端打包工具所构造的网站进行快速、高效安全检测的扫描工具<br><br>
+            Packer Fuzzer est un outil de balayage rapide, efficace et sûr pour les sites web construits avec Webpack et d'autres outils d'emballage frontaux.<br><br>
 
-            项目地址：<a href="https://github.com/rtcatc/Packer-Fuzzer">https://github.com/rtcatc/Packer-Fuzzer</a><br><br>
+            Adresse du projet: <a href="https://github.com/rtcatc/Packer-Fuzzer">https://github.com/rtcatc/Packer-Fuzzer</a><br><br>
 
-            西湖论剑 ༒༒༒  首届国产优秀网络安全工具主题展参展作品
+            ༒ Exhibiting tools at China's CYBER SECURITY ARSENAL
 					</p>
 				</div>
 			</div>
@@ -293,7 +294,7 @@
               <h5 class="card-title"></h5>
                 <div class="row">
                   <div class="col-12">
-                    <p><strong><i class="fas fa-info-circle"></i> 报告摘要</strong></p>
+                    <p><strong><i class="fas fa-info-circle"></i> Résumé du rapport</strong></p>
                     <style>
                       .left-info {
                         float: left;
@@ -312,7 +313,7 @@
                       }
                     </style>
                     <div class="left-info">
-                      <script src="./res/index.js"></script>
+                      <script src="res/index.js"></script>
                       <div id="c1"></div>
                       <script>
                         var data = [
@@ -373,7 +374,7 @@
 </section>
 <!-- =========================end information==================================== -->
 
-<!-- Js信息 -->
+<!-- Js Information -->
 <a id="js_info" class="anchor"></a>
 <section class="content">
   <div class="container-fluid">
@@ -382,15 +383,15 @@
         <div class="card">
           <div class="card-body">
              <p>
-             <strong><i class="fa fa-database"></i> JS信息</strong>
+             <strong><i class="fa fa-database"></i> JS Information</strong>
              </p><p>
              </p><div class="table-responsive">
                   <table class="table table-bordered">
                     <thead class="ant-table-thead">
                     <tr>
                        <th style="width:6%">ID</th>
-                       <th >JS地址</th>
-                       <th style="width:13%">备注</th>
+                       <th >Adresse de JS</th>
+                       <th style="width:13%">Note</th>
                     </tr>
                     </thead><tbody class="ant-table-tbody">
                       {js_list}
@@ -413,12 +414,12 @@
         <div class="card">
           <div class="card-body">
              <p>
-             <strong><i class="fa fa-exclamation"></i> 免责声明</strong>
+             <strong><i class="fa fa-exclamation"></i> Clause de non-responsabilité</strong>
              </p><p>
              </p><div class="table-responsive">
-                  本报告为Packer Fuzzer工具根据使用者检测结果<strong>自动生成</strong>的报告，报告内容不代表Packer Fuzzer开发团队的立场及观点。<br><br>
-                  由于传播、利用此工具提供的检测功能而造成的任何<strong>直接或者间接的后果及损失</strong>，均由使用者本人负责，本团队不为此<strong>承担任何责任</strong>。<br><br>
-                  请在使用本工具时遵循使用者以及目标系统所在国当地的<strong>相关法律法规</strong>，一切<strong>未授权测试均是不被允许的</strong>。<br><br>
+              Ce rapport est <strong>généré automatiquement</strong> par l'outil sur la base des résultats des tests de l'utilisateur, et le contenu du rapport ne représente pas la position et l'opinion de notre équipe.<br><br>
+              <strong>Toutes les conséquences et pertes directes ou indirectes</strong> causées par la diffusion ou l'utilisation des fonctions de test fournies par cet outil sont de la responsabilité de l'utilisateur, et l'équipe <strong>n'en assume pas la responsabilité.</strong> <br><br>
+              Veuillez respecter <strong>les lois et réglementations locales</strong> de l'utilisateur et du pays où se trouve le système cible lorsque vous utilisez cet outil, <strong>tout test non autorisé est interdit</strong>.
                 </div>
           </div>
         </div>
@@ -436,7 +437,7 @@
         <div class="card">
           <div class="card-body">
               <p>
-             <strong><i class="fas fa-bug"></i> 漏洞详情</strong>
+             <strong><i class="fas fa-bug"></i> Détails sur la vulnérabilité</strong>
             </p><p>
             </p><div class="table-responsive">
               {vuln_list}
@@ -461,17 +462,17 @@
          <div class="card">
            <div class="card-body">
               <p>
-              <strong><i class="fa fa-list-ol"></i> API清单</strong>
+              <strong><i class="fa fa-list-ol"></i> Liste des API</strong>
               </p><p>
               </p><div class="table-responsive">
                    <table class="table table-hover">
                      <thead class="ant-table-thead">
                      <tr>
                         <th style="width:6%">ID</th>
-                        <th style="width:16%">API名称</th>
-                        <th>API地址</th>
-                        <th style="width:7%">长度</th>
-                        <th style="width:13%">请求类型</th>
+                        <th style="width:16%">Nom de l'API</th>
+                        <th>Adresse API</th>
+                        <th style="width:7%">Longueur</th>
+                        <th style="width:13%">Type de demande</th>
                         <th style="width:6%"></th>
                      </tr>
                      </thead><tbody class="ant-table-tbody">
@@ -487,7 +488,7 @@
    </section>
 
 
- <!-- ===========================总体安全建议================================== -->
+ <!-- ===========================总体Recommandations en sécurité================================== -->
  <a id="urls" class="anchor"></a>
  <section class="content">
   <div class="container-fluid">
@@ -496,7 +497,7 @@
         <div class="card">
           <div class="card-body">
               <p>
-             <strong><i class="fas fa-plus"></i> 安全建议</strong>
+             <strong><i class="fas fa-plus"></i> Recommandations en sécurité</strong>
             </p><p>
             </p><div class="table-responsive">
               <ul>
@@ -519,22 +520,21 @@
         <div class="card">
           <div class="card-body">
              <p>
-             <strong><i class="fas fa-globe"></i> 附录</strong>
+             <strong><i class="fas fa-globe"></i> Annexes</strong>
              </p>
                 <div class="table-responsive">
                   <ul>
-                    <li><h5>漏洞描述</h5></li>
-                    <strong>CORS漏洞：</strong>跨域资源共享可以放宽浏览器的同源策略，可以通过浏览器让不同的网站和不同的服务器之间通信。假设用户登陆一个含有CORS配置网站vuln.com，同时又访问了攻击者提供的一个链接evil.com。 evil.com的网站向vuln.com这个网站发起请求获取敏感数据，浏览器能否接收信息取决于vuln.com的配置。如果vuln.com配置了Access-Control-Allow-Origin头且为预期，那么允许接收，否则浏览器会因为同源策略而不接收。<br><br>
-                    <strong>未授权访问漏洞：</strong>接口未授权访问，顾名思义在不进行请求授权的情况下，能够直接对相应的业务逻辑功能进行访问、操作等。通常是由于认证页面存在缺陷或者无认证、安全配置不当等导致的。<br><br>
-                    <strong>敏感信息泄露漏洞：</strong>信息泄露指在网站页面或JS文件中泄露了敏感信息。通过这些敏感信息，攻击者可进一步入侵服务器。<br><br>
-                    <strong>水平越权漏洞：</strong>越权漏洞是指应用程序未对当前用户操作的身份权限进行严格校验，导致用户可以操作超出自己管理权限范围的功能，从而操作一些非该用户可以操作的行为。水平越权会导致同一层级间的用户可以互相访问到对方的敏感信息，如姓名、手机号、联系地址、个人资料、订单记录等。同时还可能会以其他平级权限用户的身份来执行某行功能，如删除，添加，修改等。<br><br>
-                    <strong>SQL注入漏洞：</strong>SQL注入漏洞产生的原因是网站应用程序在编写时未对用户提交至服务器的数据进行合法性校验（类型、长度、业务参数合法性等），同时没有对用户输入数据进行有效地特殊字符过滤，使得用户的输入直接带入数据库执行，超出了SQL语句原来设计的预期结果，导致了SQL注入漏洞。<br><br>
-                    <strong>弱口令漏洞：</strong>网站管理、运营人员由于安全意识不足，为了方便、避免忘记密码等，使用了非常容易记住的密码，或者是直接采用了系统的默认密码等。攻击者利用此漏洞可直接进入应用系统或者管理系统，从而进行系统、网页、数据的篡改与删除，非法获取系统、用户的数据，甚至可能导致服务器沦陷。<br><br>
-                    <strong>任意文件上传漏洞：</strong>应用系统在文件上传功能处对用户上传文件类型、格式、内容等做合法性校验，导致攻击者可以上传Webshell（.php、.jsp、asp等）恶意脚本文件或者非期望格式的文件比如：HTML文件、SHTML文件等，同时可利用目录跳转等字符或者控制上传目录，直接上传文件到Web目录或任意目录下，从而可能导致在远程服务器上执行任意恶意脚本文件，从而直接获取应用系统权限。<br><br>
-                    <li><h5>漏洞等级</h5></li>
-                    本报告内置三个漏洞等级，分别是：低危、中危、高危。其中属于高危的漏洞类型有：弱口令漏洞、任意文件上传漏洞、SQL注入漏洞；属于中危的漏洞类型有：水平越权漏洞、敏感信息泄露漏洞、未授权访问漏洞；属于低危的漏洞类型有：CORS漏洞。其中置信度为“低”级别的检测结果将自动降低一级别漏洞危害，若已处于最低漏洞级别则不作降级处理。例如某漏洞为：SQL注入漏洞，本应属于高危漏洞，但其置信度为“低”，故自动降级为中危漏洞。<br><br>
-                    <li><h5>风险等级</h5></li>
-                    本报告内置无风险、低风险、中风险、高风险四个风险等级，采用打分评级模式，依次对应的分值档位为0、5、10、18。对应漏洞等级分值分别为：低危1分、中危2分、高危6分。例如在某次扫描中共发现一个高危、两个中危、五个低危漏洞，则分值计算方式为：1 x 6 + 2 x 2 + 5 x 1 = 15(分)，其得分大于10并小于18，所以风险等级为“中风险”。
+                    <li><h5>Description de la vulnérabilité</h5></li>
+                    <strong>Vulnérabilité du CORS：</strong>Le partage de ressources entre domaines peut assouplir la politique d'homologie du navigateur, permettant à différents sites web et différents serveurs de communiquer entre eux par le biais du navigateur. Supposons qu'un utilisateur se connecte à vuln.com, un site web contenant une configuration CORS, et qu'il accède également à evil.com, un lien fourni par l'attaquant. Le site web de evil.com demande à vuln.com des données sensibles, et la capacité du navigateur à recevoir ces informations dépend de la configuration de vuln.com. Si vuln.com est configuré avec l'en-tête Access-Control-Allow-Origin et qu'il est attendu, il est alors autorisé à le recevoir, sinon le navigateur ne le recevra pas en raison de la même politique d'origine.<br><br>
+                    <strong>Vulnérabilité à l'accès non autorisé：</strong>Un accès non autorisé à l'interface, comme son nom l'indique, peut accéder directement aux fonctions de logique commerciale correspondantes et les exploiter sans demander d'autorisation. Cela est généralement dû à une page d'authentification défectueuse ou non authentifiée, à une mauvaise configuration de la sécurité, etc.<br><br>
+                    <strong>Vulnérabilité des informations sensibles：</strong>La fuite d'informations désigne la divulgation d'informations sensibles dans une page de site web ou un fichier JS. Grâce à ces informations sensibles, un attaquant peut compromettre davantage le serveur.<br><br>
+                    <strong>Failles horizontales des ultra vires：</strong>On parle de vulnérabilité par saut lorsqu'une application ne vérifie pas strictement les autorisations d'identité des opérations de l'utilisateur actuel, ce qui permet à un utilisateur d'exploiter des fonctions qui dépassent ses privilèges administratifs, et donc d'exécuter certaines actions qui ne sont pas disponibles pour cet utilisateur. La neutralisation des niveaux peut permettre aux utilisateurs d'un même niveau d'accéder aux informations sensibles des autres utilisateurs, telles que le nom, le numéro de téléphone, l'adresse de contact, les données personnelles, l'historique des commandes, etc. Il peut également être possible d'exécuter une série de fonctions, telles que supprimer, ajouter, modifier, etc., comme d'autres utilisateurs ayant des privilèges de dépassement de niveau.<br><br>
+                    <strong>Vulnérabilité de l'injection SQL：</strong>La vulnérabilité d'injection SQL survient parce que l'application web est écrite sans validation des données soumises au serveur par l'utilisateur (type, longueur, validité des paramètres commerciaux, etc.), et sans filtrage efficace des caractères spéciaux des données saisies par l'utilisateur, de sorte que l'utilisateur saisit directement dans l'exécution de la base de données, au-delà des résultats attendus de la conception originale de l'instruction SQL, ce qui entraîne une vulnérabilité d'injection SQL.<br><br>
+                    <strong>Vulnérabilité des mots de passe faible：</strong>En raison d'une sensibilisation insuffisante à la sécurité, le personnel de gestion et d'exploitation du site web utilise des mots de passe très faciles à retenir ou adopte directement le mot de passe par défaut du système par souci de commodité et pour éviter d'oublier les mots de passe. Les attaquants peuvent utiliser cette vulnérabilité pour entrer directement dans le système d'application ou le système de gestion, de manière à altérer et supprimer le système, les pages web, les données, accéder illégalement au système, aux données des utilisateurs, et peuvent même entraîner la chute du serveur.<br><br>
+                    <strong>Vulnérabilité au téléchargement arbitraire de fichiers：</strong>Le système d'application vérifie la validité du type de fichier, du format et du contenu du fichier téléchargé par l'utilisateur lors de la fonction de téléchargement de fichiers, qui permet aux attaquants de télécharger des scripts malveillants à partir du Shell Web (.php, .jsp, .asp, etc.) ou des fichiers dans des formats non prévus tels que les fichiers HTML, SHTML, etc. à un répertoire web ou à tout autre répertoire, ce qui peut entraîner l'exécution de fichiers de script malveillants arbitraires sur un serveur distant pour accéder directement au système d'application.<br><br>
+                    <li><h5>Niveaux de vulnérabilité</h5></li>
+                    Ce rapport comporte trois niveaux de vulnérabilité intégrés, qui sont : un risque faible, moyen et élevé. Les types de vulnérabilité à haut risque sont : vulnérabilité faible des mots de passe, vulnérabilité du téléchargement arbitraire de fichiers, vulnérabilité de l'injection SQL ; les types de vulnérabilité à risque moyen sont : vulnérabilité du saut horizontal, vulnérabilité de la divulgation d'informations sensibles, vulnérabilité de l'accès non autorisé ; les types de vulnérabilité à faible risque sont : vulnérabilité CORS. Le niveau de confiance pour le « faible » niveau des résultats de détection réduira automatiquement la vulnérabilité d'un niveau de dommage, si celui-ci est au plus bas niveau de vulnérabilité n'est pas un déclassement. <br>Par exemple, une vulnérabilité pour : la vulnérabilité d'injection SQL, devrait être une vulnérabilité à haut risque, mais le niveau de confiance est « faible », il est automatiquement déclassé au risque de vulnérabilité.<br><br>
+                    <li><h5>Niveau du risque</h5></li>Dans ce rapport, il existe quatre niveaux de risque : aucun risque, risque faible, risque moyen et risque élevé, et le score correspondant est respectivement de 0, 5, 10 et 18. Par exemple, dans une certaine analyse, une vulnérabilité à haut risque, cinq vulnérabilités à faible risque et deux vulnérabilités à risque moyen sont trouvées, le score est calculé comme suit : 1 x 6 + 2 x 2 + 5 x 1 = 15 (points), le score est supérieur à 15 et inférieur à 18, le niveau de risque est donc « risque moyen ».
                   </ul>
                 </div>
             </div>
@@ -552,10 +552,10 @@
 
   <!-- /.content-wrapper -->
   <footer class="main-footer">
-      <strong>© 2023 Packer Fuzzer 团队</strong>
+      <strong>© 2023 Packer Fuzzer Team</strong>
        | Poc-Sir、KpLi0rn、Liucy、RachesseHS、Lupin-III
       <div class="float-right d-none d-sm-inline-block">
-        项目地址：<a href="https://github.com/rtcatc/Packer-Fuzzer">https://github.com/rtcatc/Packer-Fuzzer</a>
+        Adresse du projet: <a href="https://github.com/rtcatc/Packer-Fuzzer">https://github.com/rtcatc/Packer-Fuzzer</a>
       </div>
     </footer>
 
@@ -568,19 +568,19 @@
 <!-- ./wrapper -->
 
 <!-- jQuery -->
-<script src="./res/jquery.min.js"></script>
+<script src="res/jquery.min.js"></script>
 <!-- jQuery UI 1.11.4 -->
-<script src="./res/jquery-ui.min.js"></script>
+<script src="res/jquery-ui.min.js"></script>
 <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
 <script>
   $.widget.bridge('uibutton', $.ui.button)
 </script>
 <!-- Bootstrap 4 -->
-<script src="./res/bootstrap.bundle.min.js"></script>
+<script src="res/bootstrap.bundle.min.js"></script>
 <!-- overlayScrollbars -->
-<script src="./res/jquery.overlayScrollbars.min.js"></script>
+<script src="res/jquery.overlayScrollbars.min.js"></script>
 <!-- AdminLTE App -->
-<script src="./res/adminlte.min.js"></script>
+<script src="res/adminlte.min.js"></script>
 <script>
 // navbar hack
 if ($(".sidebar-collapse")[0])
@@ -588,8 +588,8 @@ document.getElementById("nbar").style.display = "none";
 </script>
 
 <!-- DataTables -->
-<script src="./res/jquery.dataTables.min.js"></script>
-<script src="./res/dataTables.bootstrap4.min.js"></script>
+<script src="res/jquery.dataTables.min.js"></script>
+<script src="res/dataTables.bootstrap4.min.js"></script>
 <script>
   $(function () {
     // Datatable

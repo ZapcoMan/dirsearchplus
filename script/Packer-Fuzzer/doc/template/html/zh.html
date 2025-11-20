@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html style="height: auto;"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>Packer Fuzzer</title>
@@ -9,12 +8,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- 图标 -->
   <link rel="icon" href="">
-  <link rel="stylesheet" href="./res/all.min.css">
-  <link rel="stylesheet" href="./res/adminlte.min.css">
-  <link rel="stylesheet" href="./res/OverlayScrollbars.min.css">
-  <link rel="stylesheet" href="./res/ionicons.min.css">
-  <link href="./res/css" rel="stylesheet">
-    <link rel="stylesheet" href="./res/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="res/all.min.css">
+  <link rel="stylesheet" href="res/adminlte.min.css">
+  <link rel="stylesheet" href="res/OverlayScrollbars.min.css">
+  <link rel="stylesheet" href="res/ionicons.min.css">
+  <link href="res/css" rel="stylesheet">
+    <link rel="stylesheet" href="res/dataTables.bootstrap4.min.css">
      <style type="text/css" media="print">
         @page { size: landscape; }
         @media print {
@@ -33,19 +32,19 @@
       <li class="nav-item">
           <a id="nbar" class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
         </li>
-        <li class="nav-item d-none d-sm-inline-block"><a class="nav-link"><b>API Fuzzy Detection Report</b></a></li>
+        <li class="nav-item d-none d-sm-inline-block"><a class="nav-link"><b>API 模糊检测报告</b></a></li>
     </ul>
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
-        <li class="nav-item d-none d-sm-inline-block"><a data-toggle="modal" data-target="#mobsf" class="nav-link">MobSF Theme</a></li>
-        <li class="nav-item d-none d-sm-inline-block"><a data-toggle="modal" data-target="#about-us" class="nav-link">About Us</a></li>
-        <li class="nav-item d-none d-sm-inline-block"><a href="mailto:admin@hackinn.com?subject=[!]%20Packer%20Fuzzer%20Feedback" class="nav-link">Feedback</a></li>
+        <li class="nav-item d-none d-sm-inline-block"><a data-toggle="modal" data-target="#mobsf" class="nav-link">MobSF主题</a></li>
+        <li class="nav-item d-none d-sm-inline-block"><a data-toggle="modal" data-target="#about-us" class="nav-link">关于我们</a></li>
+        <li class="nav-item d-none d-sm-inline-block"><a href="mailto:admin@hackinn.com?subject=[!]%20Packer%20Fuzzer%20Feedback" class="nav-link">反馈</a></li>
     </ul>
 
     <!-- SEARCH FORM -->
-    <form class="form-inline ml-3" action="https://www.google.com/search" method="GET">
+    <form class="form-inline ml-3" action="https://www.baidu.com/s" method="GET">
       <div class="input-group input-group-sm">
-        <input class="form-control form-control-navbar" id="navbar-search-input" type="search" placeholder="Q? Try Google" name="q" aria-label="Search">
+        <input class="form-control form-control-navbar" id="navbar-search-input" type="search" placeholder="有疑问？百度一下" name="wd" aria-label="Search">
         <div class="input-group-append">
           <button class="btn btn-navbar" type="submit">
             <i class="fas fa-search"></i>
@@ -63,7 +62,7 @@
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
     <a href="#" class="brand-link">
-      <img src="./res/images.jpeg" alt="MobSF" class="brand-image" style="opacity: .8">
+      <img src="res/images.jpeg" alt="MobSF" class="brand-image" style="opacity: .8">
       <span class="brand-text logo-lg">  Packer<strong> Fuzzer</strong></span>
     </a>
 
@@ -73,7 +72,7 @@
         <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="info">
-          <a class="d-block">Version 1.4 (English en_US)</a>
+          <a class="d-block">Version 1.4 (中文 zh_CN)</a>
         </div>
       </div>
 
@@ -88,28 +87,28 @@
            <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fa fa-file"></i>
-              <p>Basic Information<i class="fas fa-angle-left right"></i>
+              <p>基础信息<i class="fas fa-angle-left right"></i>
               </p>
             </a>
             <ul class="nav nav-treeview" style="display: block;">
               <li class="nav-item">
               <a href="#information" class="nav-link">
                 <i class="fas fa-info-circle nav-icon"></i>
-                <p>Summary of the report</p>
+                <p>报告摘要</p>
               </a>
               </li>
 
                 <li class="nav-item">
                 <a href="#js_info" class="nav-link">
                   <i class="fas fa-database nav-icon"></i>
-                  <p>JS information</p>
+                  <p>Js信息</p>
                 </a>
               </li>
 
                 <li class="nav-item">
                 <a href="#nor_info" class="nav-link">
                   <i class="fas fa-exclamation nav-icon"></i>
-                  <p>Disclaimer</p>
+                  <p>免责声明</p>
                 </a>
                 </li>
 
@@ -121,7 +120,7 @@
           <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fa fa-bug"></i>
-              <p>Vulnerability details<i class="fas fa-angle-left right"></i>
+              <p>漏洞详情<i class="fas fa-angle-left right"></i>
               </p>
             </a>
             <ul class="nav nav-treeview" style="display: block;">
@@ -134,14 +133,14 @@
           <li class="nav-item">
             <a href="#api_list" class="nav-link">
               <i class="nav-icon fa fa-list-ol"></i>
-              <p>API list</p>
+              <p>API清单</p>
             </a>
           </li>
           <li class="nav-item">
            <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fa fa-plus"></i>
-              <p>Security recommendations<i class="fas fa-angle-left right"></i>
+              <p>安全建议<i class="fas fa-angle-left right"></i>
               </p>
             </a>
             <ul class="nav nav-treeview" style="display: block;">
@@ -151,7 +150,7 @@
           <li class="nav-item">
             <a href="#other" class="nav-link">
               <i class="fas fa-globe nav-icon"></i>
-              <p>Appendix</p>
+              <p>附录</p>
             </a>
           </li>
           <li class="nav-item has-treeview menu-open">
@@ -168,7 +167,7 @@
           <li class="nav-item">
             <a href="javascript:window.print()" class="nav-link">
             <i class="nav-icon fas fa-print"></i>
-            <p>Print</p>
+            <p>打印</p>
             </a>
           </li>
         </ul>
@@ -192,13 +191,13 @@
 	<div class="modal-dialog">
 		<div class="modal-content">
       <div class="modal-header">
-        <h6 class="modal-title">We used the MobSF theme...</h6>
+        <h6 class="modal-title">我们使用了MobSF的主题...</h4>
       </div>
 			<div class="modal-body">
 				<div class="box-body no-padding">
 					<p>
-						Mobile Security Framework (MobSF) is an automated all-in-one mobile application (Android / iOS / Windows) that performs static and dynamic analysis for pen testing, malware analysis and security assessment framework.<br><br>
-            Project address：<a href="https://github.com/MobSF/Mobile-Security-Framework-MobSF">https://github.com/MobSF/Mobile-Security-Framework-MobSF</a><br><br>
+						移动安全框架（MobSF）是一种自动化的多合一移动应用程序（Android / iOS / Windows）可以进行静态和动态分析的笔测试，恶意软件分析和安全评估框架。<br><br>
+            项目地址：<a href="https://github.com/MobSF/Mobile-Security-Framework-MobSF">https://github.com/MobSF/Mobile-Security-Framework-MobSF</a><br><br>
             © 2023 Mobile Security Framework - MobSF | <a href="https://ajinabraham.com/">Ajin Abraham</a> | <a href="https://opensecurity.in/">OpenSecurity</a>.
 					</p>
 				</div>
@@ -211,18 +210,18 @@
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h6 class="modal-title">About us...</h6>
+				<h6 class="modal-title">关于我们...</h4>
 			</div>
 			<div class="modal-body">
 				<div class="box-body no-padding">
 					<p>
-						The English-language contributors to this HTML report is: RachesseHS<br><br>
+						本HTML报告的中文贡献者是：Lupin-III<br><br>
 
-            Packer Fuzzer is a fast, efficient and secure scanning tool for websites built with Webpack and other front-end packaging tools.<br><br>
+            Packer Fuzzer是一款针对Webpack等前端打包工具所构造的网站进行快速、高效安全检测的扫描工具<br><br>
 
-            Project address：<a href="https://github.com/rtcatc/Packer-Fuzzer">https://github.com/rtcatc/Packer-Fuzzer</a><br><br>
+            项目地址：<a href="https://github.com/rtcatc/Packer-Fuzzer">https://github.com/rtcatc/Packer-Fuzzer</a><br><br>
 
-            ༒ Exhibiting tools at China's CYBER SECURITY ARSENAL
+            西湖论剑 ༒༒༒  首届国产优秀网络安全工具主题展参展作品
 					</p>
 				</div>
 			</div>
@@ -294,7 +293,7 @@
               <h5 class="card-title"></h5>
                 <div class="row">
                   <div class="col-12">
-                    <p><strong><i class="fas fa-info-circle"></i> Summary of the report</strong></p>
+                    <p><strong><i class="fas fa-info-circle"></i> 报告摘要</strong></p>
                     <style>
                       .left-info {
                         float: left;
@@ -313,7 +312,7 @@
                       }
                     </style>
                     <div class="left-info">
-                      <script src="./res/index.js"></script>
+                      <script src="res/index.js"></script>
                       <div id="c1"></div>
                       <script>
                         var data = [
@@ -343,7 +342,7 @@
                           }
                         });
                         chart.tooltip({
-                          title: "distribution of vulnerabilities",
+                          title: "漏洞分布",
                           map: {
                             value: 'value'
                           }
@@ -383,15 +382,15 @@
         <div class="card">
           <div class="card-body">
              <p>
-             <strong><i class="fa fa-database"></i> JS Information</strong>
+             <strong><i class="fa fa-database"></i> JS信息</strong>
              </p><p>
              </p><div class="table-responsive">
                   <table class="table table-bordered">
                     <thead class="ant-table-thead">
                     <tr>
                        <th style="width:6%">ID</th>
-                       <th >JS Address</th>
-                       <th style="width:13%">Note</th>
+                       <th >JS地址</th>
+                       <th style="width:13%">备注</th>
                     </tr>
                     </thead><tbody class="ant-table-tbody">
                       {js_list}
@@ -414,13 +413,13 @@
         <div class="card">
           <div class="card-body">
              <p>
-             <strong><i class="fa fa-exclamation"></i> Disclaimer</strong>
+             <strong><i class="fa fa-exclamation"></i> 免责声明</strong>
              </p><p>
              </p><div class="table-responsive">
-                This report is <strong>automatically generated by</strong> the Packer Fuzzer tool based on the user's test results, and its contents do not represent the position and opinion of the Packer Fuzzer development team.<br><br>
-                The user is responsible for <strong>any direct or indirect consequences and losses resulting</strong> from the distribution or use of the detection functions provided by the tool, and the Packer Fuzzer development team is <strong>responsible for such consequences or losses.</strong><br><br>
-                Please comply with the <strong> local laws and regulations</strong> of the user and the country where the target system is located when using this tool, <strong>unauthorized testing is not allowed.</strong>
-          </div>
+                  本报告为Packer Fuzzer工具根据使用者检测结果<strong>自动生成</strong>的报告，报告内容不代表Packer Fuzzer开发团队的立场及观点。<br><br>
+                  由于传播、利用此工具提供的检测功能而造成的任何<strong>直接或者间接的后果及损失</strong>，均由使用者本人负责，本团队不为此<strong>承担任何责任</strong>。<br><br>
+                  请在使用本工具时遵循使用者以及目标系统所在国当地的<strong>相关法律法规</strong>，一切<strong>未授权测试均是不被允许的</strong>。<br><br>
+                </div>
           </div>
         </div>
         </div>
@@ -437,7 +436,7 @@
         <div class="card">
           <div class="card-body">
               <p>
-             <strong><i class="fas fa-bug"></i> Vulnerability details</strong>
+             <strong><i class="fas fa-bug"></i> 漏洞详情</strong>
             </p><p>
             </p><div class="table-responsive">
               {vuln_list}
@@ -462,17 +461,17 @@
          <div class="card">
            <div class="card-body">
               <p>
-              <strong><i class="fa fa-list-ol"></i> API list</strong>
+              <strong><i class="fa fa-list-ol"></i> API清单</strong>
               </p><p>
               </p><div class="table-responsive">
                    <table class="table table-hover">
                      <thead class="ant-table-thead">
                      <tr>
                         <th style="width:6%">ID</th>
-                        <th style="width:16%">Name of API</th>
-                        <th>API Address</th>
-                        <th style="width:7%">Length</th>
-                        <th style="width:13%">Request Type</th>
+                        <th style="width:16%">API名称</th>
+                        <th>API地址</th>
+                        <th style="width:7%">长度</th>
+                        <th style="width:13%">请求类型</th>
                         <th style="width:6%"></th>
                      </tr>
                      </thead><tbody class="ant-table-tbody">
@@ -497,7 +496,7 @@
         <div class="card">
           <div class="card-body">
               <p>
-             <strong><i class="fas fa-plus"></i> Security recommendations</strong>
+             <strong><i class="fas fa-plus"></i> 安全建议</strong>
             </p><p>
             </p><div class="table-responsive">
               <ul>
@@ -520,21 +519,22 @@
         <div class="card">
           <div class="card-body">
              <p>
-             <strong><i class="fas fa-globe"></i> Appendix</strong>
+             <strong><i class="fas fa-globe"></i> 附录</strong>
              </p>
                 <div class="table-responsive">
                   <ul>
-                    <li><h5>Vulnerability description</h5></li>
-                    <strong>CORS vulnerability：</strong>Cross-domain resource sharing can relax the browser's homology policy, which allows different websites and different servers to communicate with each other through the browser. Suppose a user logs on to vuln.com, a website with a CORS configuration, and also accesses evil.com, a link provided by the attacker. The evil.com website makes a request to vuln.com for sensitive data, and the browser's ability to receive the information depends on the configuration of vuln.com. If vuln.com is configured with the Access-Control-Allow-Origin header and is expected, then it is allowed to receive it, otherwise the browser will not receive it due to the same origin policy.<br><br>
-                    <strong>Unauthorized Access Vulnerability: </strong>Unauthorized access to the interface, as the name implies, can directly access and operate the corresponding business logic functions without requesting authorization. This is usually caused by a flawed or unauthenticated authentication page, improper security configuration, etc.<br><br>
-                    <strong>Sensitive Information Disclosure Vulnerability: ：</strong>Information disclosure refers to the disclosure of sensitive information in a website page or JS file. Through this sensitive information, an attacker can further compromise the server.<br><br>
-                    <strong>Horizontal Override Vulnerability:</strong>an override vulnerability is when an application does not strictly verify the identity permissions of the current user's operations, resulting in users being able to operate functions that are beyond their administrative privileges, thus operating some behaviors that are not available to that user. Level override can result in users between the same level having access to each other's sensitive information, such as name, phone number, contact address, personal data, order history, and so on. It may also be possible to perform a line of functions, such as delete, add, modify, etc., as other users with level override privileges.<br><br>
-                    <strong>SQL Injection Vulnerability:</strong>SQL injection vulnerability arises because the web application is not written for the user to submit data to the server to verify the legitimacy of the data (type, length, legitimacy of business parameters, etc.), and there is no effective special character filtering of user input data, making the user input directly into the database execution, beyond the expected results of the original design of the SQL statement, resulting in a SQL injection vulnerability.<br><br>
-                    <strong>Weak password vulnerability: </strong>Website management and operations personnel use very easy to remember passwords or directly adopt the system's default password due to insufficient security awareness, in order to facilitate and avoid forgetting passwords. Attackers can use this vulnerability to directly enter the application system or management system, so as to tamper with and delete the system, web pages, data, illegally access the system, user data, and may even lead to the fall of the server.<br><br>
-                    <strong>Arbitrary file upload vulnerability: </strong>The application system checks the legitimacy of the file type, format and content of the file uploaded by the user at the file upload function, which allows an attacker to upload a malicious Web shell script file or a file of non-expected format such as: HTML file, SHTML file, etc. At the same time, he can use the directory jump characters or control the upload. directory, uploading files directly to the web directory or any directory, which may result in the execution of arbitrary malicious script files on a remote server to gain direct access to the application system.<br><br>
-                    <li><h5>Vulnerability levels</h5></li>This report has three built-in vulnerability levels, which are: low, medium and high risk. The high-risk vulnerability types are: weak password vulnerability, arbitrary file upload vulnerability, SQLi vulnerability; the medium-risk vulnerability types are: horizontal leapfrogging vulnerability, sensitive information disclosure vulnerability, unauthorized access vulnerability; the low-risk vulnerability types are: CORS vulnerability. <br>The confidence level for the "low" level of detection results will automatically reduce the vulnerability of a level of harm, if it is at the lowest vulnerability level is not a downgrade. For example, a vulnerability for: SQL injection vulnerability, should be a high-risk vulnerability, but the confidence level is "low", it is automatically downgraded to the risk of vulnerability.<br><br>
-                    <li><h5>Risk level</h5></li>
-                    This report has four risk levels: no risk, low risk, medium risk, and high risk, with a scoring scale of 0, 5, 10, and 18, respectively. For example, in a certain scan, one high-risk, two medium-risk and five low-risk vulnerabilities are found, the score is calculated as 1 x 6 + 2 x 2 + 5 x 1 = 15 (points), the score is greater than 10 and less than 18, so the risk level is "medium-risk".<br><br>
+                    <li><h5>漏洞描述</h5></li>
+                    <strong>CORS漏洞：</strong>跨域资源共享可以放宽浏览器的同源策略，可以通过浏览器让不同的网站和不同的服务器之间通信。假设用户登陆一个含有CORS配置网站vuln.com，同时又访问了攻击者提供的一个链接evil.com。 evil.com的网站向vuln.com这个网站发起请求获取敏感数据，浏览器能否接收信息取决于vuln.com的配置。如果vuln.com配置了Access-Control-Allow-Origin头且为预期，那么允许接收，否则浏览器会因为同源策略而不接收。<br><br>
+                    <strong>未授权访问漏洞：</strong>接口未授权访问，顾名思义在不进行请求授权的情况下，能够直接对相应的业务逻辑功能进行访问、操作等。通常是由于认证页面存在缺陷或者无认证、安全配置不当等导致的。<br><br>
+                    <strong>敏感信息泄露漏洞：</strong>信息泄露指在网站页面或JS文件中泄露了敏感信息。通过这些敏感信息，攻击者可进一步入侵服务器。<br><br>
+                    <strong>水平越权漏洞：</strong>越权漏洞是指应用程序未对当前用户操作的身份权限进行严格校验，导致用户可以操作超出自己管理权限范围的功能，从而操作一些非该用户可以操作的行为。水平越权会导致同一层级间的用户可以互相访问到对方的敏感信息，如姓名、手机号、联系地址、个人资料、订单记录等。同时还可能会以其他平级权限用户的身份来执行某行功能，如删除，添加，修改等。<br><br>
+                    <strong>SQL注入漏洞：</strong>SQL注入漏洞产生的原因是网站应用程序在编写时未对用户提交至服务器的数据进行合法性校验（类型、长度、业务参数合法性等），同时没有对用户输入数据进行有效地特殊字符过滤，使得用户的输入直接带入数据库执行，超出了SQL语句原来设计的预期结果，导致了SQL注入漏洞。<br><br>
+                    <strong>弱口令漏洞：</strong>网站管理、运营人员由于安全意识不足，为了方便、避免忘记密码等，使用了非常容易记住的密码，或者是直接采用了系统的默认密码等。攻击者利用此漏洞可直接进入应用系统或者管理系统，从而进行系统、网页、数据的篡改与删除，非法获取系统、用户的数据，甚至可能导致服务器沦陷。<br><br>
+                    <strong>任意文件上传漏洞：</strong>应用系统在文件上传功能处对用户上传文件类型、格式、内容等做合法性校验，导致攻击者可以上传Webshell（.php、.jsp、asp等）恶意脚本文件或者非期望格式的文件比如：HTML文件、SHTML文件等，同时可利用目录跳转等字符或者控制上传目录，直接上传文件到Web目录或任意目录下，从而可能导致在远程服务器上执行任意恶意脚本文件，从而直接获取应用系统权限。<br><br>
+                    <li><h5>漏洞等级</h5></li>
+                    本报告内置三个漏洞等级，分别是：低危、中危、高危。其中属于高危的漏洞类型有：弱口令漏洞、任意文件上传漏洞、SQL注入漏洞；属于中危的漏洞类型有：水平越权漏洞、敏感信息泄露漏洞、未授权访问漏洞；属于低危的漏洞类型有：CORS漏洞。其中置信度为“低”级别的检测结果将自动降低一级别漏洞危害，若已处于最低漏洞级别则不作降级处理。例如某漏洞为：SQL注入漏洞，本应属于高危漏洞，但其置信度为“低”，故自动降级为中危漏洞。<br><br>
+                    <li><h5>风险等级</h5></li>
+                    本报告内置无风险、低风险、中风险、高风险四个风险等级，采用打分评级模式，依次对应的分值档位为0、5、10、18。对应漏洞等级分值分别为：低危1分、中危2分、高危6分。例如在某次扫描中共发现一个高危、两个中危、五个低危漏洞，则分值计算方式为：1 x 6 + 2 x 2 + 5 x 1 = 15(分)，其得分大于10并小于18，所以风险等级为“中风险”。
                   </ul>
                 </div>
             </div>
@@ -552,10 +552,10 @@
 
   <!-- /.content-wrapper -->
   <footer class="main-footer">
-      <strong>© 2023 Packer Fuzzer Team</strong>
+      <strong>© 2023 Packer Fuzzer 团队</strong>
        | Poc-Sir、KpLi0rn、Liucy、RachesseHS、Lupin-III
       <div class="float-right d-none d-sm-inline-block">
-        Project Address：<a href="https://github.com/rtcatc/Packer-Fuzzer">https://github.com/rtcatc/Packer-Fuzzer</a>
+        项目地址：<a href="https://github.com/rtcatc/Packer-Fuzzer">https://github.com/rtcatc/Packer-Fuzzer</a>
       </div>
     </footer>
 
@@ -568,19 +568,19 @@
 <!-- ./wrapper -->
 
 <!-- jQuery -->
-<script src="./res/jquery.min.js"></script>
+<script src="res/jquery.min.js"></script>
 <!-- jQuery UI 1.11.4 -->
-<script src="./res/jquery-ui.min.js"></script>
+<script src="res/jquery-ui.min.js"></script>
 <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
 <script>
   $.widget.bridge('uibutton', $.ui.button)
 </script>
 <!-- Bootstrap 4 -->
-<script src="./res/bootstrap.bundle.min.js"></script>
+<script src="res/bootstrap.bundle.min.js"></script>
 <!-- overlayScrollbars -->
-<script src="./res/jquery.overlayScrollbars.min.js"></script>
+<script src="res/jquery.overlayScrollbars.min.js"></script>
 <!-- AdminLTE App -->
-<script src="./res/adminlte.min.js"></script>
+<script src="res/adminlte.min.js"></script>
 <script>
 // navbar hack
 if ($(".sidebar-collapse")[0])
@@ -588,8 +588,8 @@ document.getElementById("nbar").style.display = "none";
 </script>
 
 <!-- DataTables -->
-<script src="./res/jquery.dataTables.min.js"></script>
-<script src="./res/dataTables.bootstrap4.min.js"></script>
+<script src="res/jquery.dataTables.min.js"></script>
+<script src="res/dataTables.bootstrap4.min.js"></script>
 <script>
   $(function () {
     // Datatable

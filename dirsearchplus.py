@@ -15,15 +15,11 @@
 #
 #  作者: Mauro Soria
 
-import time
 from colorama import init, Fore, Style
 
 from lib.pass403_optimized import OptimizedArguments as Arguments, OptimizedProgram as Program
 from lib.qc import pass403_qc
 
-
-import threading
-from concurrent.futures import ThreadPoolExecutor
 import queue
 
 
@@ -104,7 +100,6 @@ def bypass():
 
 
 def run_bypass403():
-    import multiprocessing
     size = os.path.getsize('403list.txt')
     size_js=os.path.getsize('jsfind403list.txt')
     from lib.core.options import parse_options
@@ -207,8 +202,7 @@ def hhh():
 
 def swagger_scan():
     import lib.core.options
-    from lib.core.data import options
-    import swagger
+    from script import swagger
     import argparse
 
     # 只调用一次 parse_options() 并存储结果
@@ -459,8 +453,6 @@ def main():
     from lib.core.options import parse_options
 
     options.update(parse_options())
-
-    from lib.controller.controller import Controller
 
     # Controller()
     #

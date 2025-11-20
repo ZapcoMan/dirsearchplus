@@ -30,7 +30,7 @@ except ImportError:
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 logger.remove(); logger.add(sys.stderr, level="INFO")
-logger.add("debug.log", level="DEBUG", format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {message}")
+logger.add("../debug.log", level="DEBUG", format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {message}")
 proxies = {'https': 'http://127.0.0.1:7890', 'http': 'http://127.0.0.1:7890'}
 SET_PROXY = False
 header_agents = [

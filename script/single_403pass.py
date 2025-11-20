@@ -19,7 +19,7 @@ if __name__ == '__main__':
     parser.add_argument("-p", "--path", help="url path", default='')
     args = parser.parse_args()
     url=args.url
-    with open('bypass403_url.txt','w') as f:
+    with open('../bypass403_url.txt', 'w') as f:
         f.write(url)
     path=args.path
     bypass(url,path)
