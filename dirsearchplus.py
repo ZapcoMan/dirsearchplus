@@ -18,6 +18,7 @@ import re
 
 from colorama import init, Fore, Style
 
+from lib.controller.controller import Controller
 from lib.pass403_optimized import OptimizedArguments as Arguments, OptimizedProgram as Program
 from lib.qc import pass403_qc
 
@@ -351,12 +352,13 @@ def packer_fuzzer():
                 print(f"扫描URL: {url}")
 
                 # 检查是否已经安装了 Packer-Fuzzer
-                if not os.path.exists(os.path.join(os.getcwd(), 'Packer-Fuzzer')):
+                # 更新路径为 script/Packer-Fuzzer
+                if not os.path.exists(os.path.join(os.getcwd(), 'script', 'Packer-Fuzzer')):
                     print(Fore.YELLOW + "未找到Packer-Fuzzer。正在从GitHub克隆..." + Style.RESET_ALL)
-                    # 克隆 Packer-Fuzzer 仓库
+                    # 克隆 Packer-Fuzzer 仓库到 script 目录
                     subprocess.run([
                         'git', 'clone', 'https://github.com/rtcatc/Packer-Fuzzer.git'
-                    ], check=True)
+                    ], cwd=os.path.join(os.getcwd(), 'script'), check=True)
 
                 # 使用项目根目录下的.venv虚拟环境
                 project_root = os.getcwd()
@@ -374,7 +376,8 @@ def packer_fuzzer():
                     return
 
                 # 优化依赖检查逻辑 - 只在必要时安装依赖
-                packer_fuzzer_dir = os.path.join(project_root, 'Packer-Fuzzer')
+                # 更新 Packer-Fuzzer 路径为 script/Packer-Fuzzer
+                packer_fuzzer_dir = os.path.join(project_root, 'script', 'Packer-Fuzzer')
                 requirements_file = os.path.join(packer_fuzzer_dir, 'requirements.txt')
                 installed_flag = os.path.join(packer_fuzzer_dir, '.installed')
 
@@ -392,7 +395,7 @@ def packer_fuzzer():
                     print(Fore.GREEN + "正在项目虚拟环境中安装Packer-Fuzzer依赖..." + Style.RESET_ALL)
                     # 使用项目根目录下的虚拟环境pip来安装Packer-Fuzzer目录中的requirements.txt
                     subprocess.run([
-                        venv_pip, 'install', '-r', os.path.join(project_root, 'Packer-Fuzzer', 'requirements.txt')
+                        venv_pip, 'install', '-r', os.path.join(project_root, 'script', 'Packer-Fuzzer', 'requirements.txt')
                     ], cwd=project_root, check=True)
 
                     # 创建或更新标记文件
@@ -411,13 +414,14 @@ def packer_fuzzer():
                 print(Fore.GREEN + "正在运行Packer-Fuzzer扫描..." + Style.RESET_ALL)
                 result = subprocess.run([
                     venv_python, 'PackerFuzzer.py', '-u', url
-                ], cwd=os.path.join(project_root, 'Packer-Fuzzer'),
+                ], cwd=os.path.join(project_root, 'script', 'Packer-Fuzzer'),  # 更新工作目录
                    capture_output=True, text=True, env=env,
                    errors='replace')  # 添加 errors 参数来处理编码问题
 
                 # 查找生成的HTML报告
                 import glob
-                report_files = glob.glob(os.path.join(project_root, 'Packer-Fuzzer', 'reports', '*.html'))
+                # 更新报告路径为 script/Packer-Fuzzer/reports
+                report_files = glob.glob(os.path.join(project_root, 'script', 'Packer-Fuzzer', 'reports', '*.html'))
                 if report_files:
                     latest_report = max(report_files, key=os.path.getctime)
                     print(Fore.GREEN + "\nPacker-Fuzzer扫描报告已找到:" + Style.RESET_ALL)
@@ -443,32 +447,44 @@ def packer_fuzzer():
         print(Fore.RED + f"Packer-Fuzzer扫描期间出错: {str(e)}" + Style.RESET_ALL)
 
 
+def run():
+    """
+    主函数，负责执行一系列安全扫描和检测功能
 
+    该函数按顺序调用多个安全检测模块，包括漏洞扫描、JS文件分析、
+    403绕过测试、指纹识别、打包器模糊测试和Swagger接口扫描等功能。
+    """
 
-
-
-def main():
-
+    # 执行基础初始化操作
     hhh()
 
+    # 导入并解析命令行选项配置
     from lib.core.options import parse_options
 
+    # 更新全局选项配置
     options.update(parse_options())
 
-    # Controller()
-    #
-    # jsfind()
-    #
-    # run_bypass403()
-    #
-    # ehole()
-    
+    # 初始化并运行主控制器
+    Controller()
+
+    # 执行JavaScript文件查找和分析
+    jsfind()
+
+    # 运行403 Forbidden状态码绕过测试
+    run_bypass403()
+
+    # 执行EHole指纹识别工具
+    ehole()
+
+    # 运行打包器模糊测试
     packer_fuzzer()
-    
-    # swagger_scan()
+
+    # 执行Swagger接口扫描
+    swagger_scan()
+
 
 
 
 if __name__ == "__main__":
     q = queue.Queue()
-    main()
+    run()
