@@ -1,22 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-#  This program is free software; you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation; either version 2 of the License, or
-#  (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-#  MA 02110-1301, USA.
-#
-#  Author: Mauro Soria
-
 import subprocess
 import sys
 import pkg_resources
@@ -29,6 +10,15 @@ REQUIREMENTS_FILE = f"{SCRIPT_PATH}/requirements.txt"
 
 
 def get_dependencies():
+    """
+    从requirements.txt文件中读取依赖列表
+
+    Returns:
+        list: 包含所有依赖项的列表
+
+    Raises:
+        FileNotFoundError: 当找不到requirements.txt文件时退出程序
+    """
     try:
         return FileUtils.get_lines(REQUIREMENTS_FILE)
     except FileNotFoundError:
@@ -36,12 +26,24 @@ def get_dependencies():
         exit(1)
 
 
-# Check if all dependencies are satisfied
+# 检查所有依赖是否满足
 def check_dependencies():
+    """
+    检查当前环境中是否已安装所有必需的依赖包
+    使用pkg_resources模块验证依赖包是否满足要求
+    """
     pkg_resources.require(get_dependencies())
 
 
 def install_dependencies():
+    """
+    安装项目所需的所有依赖包
+
+    通过调用pip命令安装requirements.txt中列出的所有依赖包
+
+    Raises:
+        FailedDependenciesInstallation: 当依赖安装失败时抛出异常
+    """
     try:
         subprocess.check_output(
             [sys.executable, "-m", "pip", "install", "-r", REQUIREMENTS_FILE],
@@ -49,3 +51,4 @@ def install_dependencies():
         )
     except subprocess.CalledProcessError:
         raise FailedDependenciesInstallation
+
