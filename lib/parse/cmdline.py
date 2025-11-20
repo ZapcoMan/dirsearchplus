@@ -14,7 +14,8 @@
 #  作者: Mauro Soria
 from optparse import OptionParser, OptionGroup
 
-from lib.core.settings import VERSION
+from lib.core.settings import VERSION, SCRIPT_PATH, AUTHENTICATION_TYPES
+from lib.utils.file import FileUtils
 
 
 def parse_arguments():
