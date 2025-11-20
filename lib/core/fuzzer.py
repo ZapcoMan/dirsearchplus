@@ -1,21 +1,3 @@
-# -*- coding: utf-8 -*-
-#  This program is free software; you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation; either version 2 of the License, or
-#  (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-#  MA 02110-1301, USA.
-#
-#  Author: Mauro Soria
-
 import re
 import threading
 import time
@@ -35,6 +17,17 @@ from lib.utils.crawl import Crawler
 
 
 class Fuzzer:
+    """
+    模糊测试器类，用于执行路径扫描任务。
+
+    参数:
+        requester: 请求发送对象，负责实际的HTTP请求。
+        dictionary: 字典迭代器，提供待测试的路径列表。
+        match_callbacks (list): 匹配回调函数列表，在发现有效路径时调用。
+        not_found_callbacks (list): 未找到回调函数列表，在路径无效或被排除时调用。
+        error_callbacks (list): 错误处理回调函数列表，在发生异常时调用。
+    """
+
     def __init__(self, requester, dictionary, **kwargs):
         self._threads = []
         self._scanned = set()
@@ -50,6 +43,18 @@ class Fuzzer:
         self.error_callbacks = kwargs.get("error_callbacks", [])
 
     def wait(self, timeout=None):
+        """
+        等待所有线程完成运行。
+
+        参数:
+            timeout (float): 超时时间（秒），默认为None表示无限等待。
+
+        返回:
+            bool: 所有线程是否已完成。
+
+        异常:
+            抛出之前记录的异常（如果存在）。
+        """
         if self.exc:
             raise self.exc
 
@@ -62,13 +67,17 @@ class Fuzzer:
         return True
 
     def setup_scanners(self):
+        """
+        初始化各种类型的Scanner实例，包括默认、前缀和后缀扫描器，
+        用于检测响应中的通配符行为。
+        """
         self.scanners = {
             "default": {},
             "prefixes": {},
             "suffixes": {},
         }
 
-        # Default scanners (wildcard testers)
+        # 默认扫描器（通配符测试点）
         self.scanners["default"].update({
             "index": Scanner(self._requester, path=self._base_path),
             "random": Scanner(self._requester, path=self._base_path + WILDCARD_TEST_POINT_MARKER),
@@ -102,6 +111,9 @@ class Fuzzer:
                 )
 
     def setup_threads(self):
+        """
+        根据配置选项初始化并创建多个工作线程。
+        """
         if self._threads:
             self._threads = []
 
@@ -111,7 +123,16 @@ class Fuzzer:
             self._threads.append(new_thread)
 
     def get_scanners_for(self, path):
-        # Clean the path, so can check for extensions/suffixes
+        """
+        获取与给定路径匹配的所有Scanner实例。
+
+        参数:
+            path (str): 待检查的路径字符串。
+
+        生成:
+            Scanner: 符合条件的Scanner对象。
+        """
+        # 清理路径以进行扩展名/后缀判断
         path = clean_path(path)
 
         for prefix in self.scanners["prefixes"]:
@@ -126,6 +147,9 @@ class Fuzzer:
             yield scanner
 
     def start(self):
+        """
+        启动模糊测试流程：设置扫描器和线程，并开始执行。
+        """
         self.setup_scanners()
         self.setup_threads()
 
@@ -139,9 +163,15 @@ class Fuzzer:
         self.play()
 
     def play(self):
+        """
+        唤醒所有暂停的工作线程继续执行。
+        """
         self._play_event.set()
 
     def pause(self):
+        """
+        暂停当前正在运行的所有线程。
+        """
         self._play_event.clear()
         for thread in self._threads:
             if thread.is_alive():
@@ -150,16 +180,29 @@ class Fuzzer:
         self._is_running = False
 
     def resume(self):
+        """
+        继续执行已暂停的线程。
+        """
         self._is_running = True
         self._paused_semaphore.release()
         self.play()
 
     def stop(self):
+        """
+        停止整个模糊测试过程。
+        """
         self._is_running = False
         self.play()
 
     def scan(self, path, scanners):
-        # Avoid scanned paths from being re-scanned
+        """
+        对指定路径发起请求并使用提供的Scanner验证其有效性。
+
+        参数:
+            path (str): 需要扫描的目标路径。
+            scanners (generator): 提供Scanner实例的可迭代对象。
+        """
+        # 防止重复扫描相同路径
         if path in self._scanned:
             return
         else:
@@ -173,7 +216,7 @@ class Fuzzer:
             return
 
         for tester in scanners:
-            # Check if the response is unique, not wildcard
+            # 判断响应是否唯一且不是通配符结果
             if not tester.check(path, response):
                 for callback in self.not_found_callbacks:
                     callback(response)
@@ -193,6 +236,15 @@ class Fuzzer:
                     self.scan(path_, self.get_scanners_for(path_))
 
     def is_excluded(self, resp):
+        """
+        使用多种过滤规则来判断一个响应是否应该被忽略。
+
+        参数:
+            resp: HTTP响应对象。
+
+        返回:
+            bool: 如果该响应应被排除则返回True，否则False。
+        """
         """Validate the response by different filters"""
 
         if resp.status in options["exclude_status_codes"]:
@@ -240,18 +292,40 @@ class Fuzzer:
         return False
 
     def is_stopped(self):
+        """
+        判断是否所有的线程都已经停止运行。
+
+        返回:
+            bool: 当前线程数为零时返回True。
+        """
         return self._running_threads_count == 0
 
     def decrease_threads(self):
+        """
+        减少活动线程计数。
+        """
         self._running_threads_count -= 1
 
     def increase_threads(self):
+        """
+        增加活动线程计数。
+        """
         self._running_threads_count += 1
 
     def set_base_path(self, path):
+        """
+        设置基础路径，后续拼接字典中读取到的相对路径。
+
+        参数:
+            path (str): 基础URL路径部分。
+        """
         self._base_path = path
 
     def thread_proc(self):
+        """
+        工作线程主循环逻辑。从字典获取下一个路径，对其进行扫描。
+        处理暂停、恢复以及延迟控制等操作。
+        """
         self._play_event.wait()
 
         while True:
