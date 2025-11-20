@@ -333,6 +333,7 @@ def packer_fuzzer():
     import os
     import sys
     import subprocess
+    import time
     from lib.core.options import parse_options
 
     # 检查 -p/--packer-fuzzer 参数
@@ -362,25 +363,66 @@ def packer_fuzzer():
                         'git', 'clone', 'https://github.com/rtcatc/Packer-Fuzzer.git'
                     ], check=True)
 
-                # 安装依赖
-                if not os.path.exists(os.path.join(os.getcwd(), 'Packer-Fuzzer', 'venv')):
-                    print(Fore.GREEN + "正在安装Packer-Fuzzer依赖..." + Style.RESET_ALL)
-                    subprocess.run([
-                        'python3', '-m', 'venv', 'venv'
-                    ], cwd=os.path.join(os.getcwd(), 'Packer-Fuzzer'), check=True)
-                    subprocess.run([
-                        './venv/bin/pip', 'install', '-r', 'requirements.txt'
-                    ], cwd=os.path.join(os.getcwd(), 'Packer-Fuzzer'), check=True)
+                # 使用项目根目录下的.venv虚拟环境
+                project_root = os.getcwd()
+                print(Fore.GREEN + f"使用项目根目录下的.venv虚拟环境: {project_root}" + Style.RESET_ALL)
+                if sys.platform == "win32":
+                    venv_python = os.path.join(project_root, '.venv', 'Scripts', 'python.exe')
+                    venv_pip = os.path.join(project_root, '.venv', 'Scripts', 'pip.exe')
+                else:
+                    venv_python = os.path.join(project_root, '.venv', 'bin', 'python')
+                    venv_pip = os.path.join(project_root, '.venv', 'bin', 'pip')
 
-                # 运行 Packer-Fuzzer 扫描
+                # 检查项目虚拟环境是否存在
+                if not os.path.exists(os.path.join(project_root, '.venv')):
+                    print(Fore.RED + "项目虚拟环境(.venv)不存在，请先创建项目虚拟环境" + Style.RESET_ALL)
+                    return
+
+                # 优化依赖检查逻辑 - 只在必要时安装依赖
+                packer_fuzzer_dir = os.path.join(project_root, 'Packer-Fuzzer')
+                requirements_file = os.path.join(packer_fuzzer_dir, 'requirements.txt')
+                installed_flag = os.path.join(packer_fuzzer_dir, '.installed')
+
+                # 检查是否需要安装依赖
+                need_install = False
+                if not os.path.exists(installed_flag):
+                    # 从未安装过依赖
+                    need_install = True
+                elif os.path.exists(requirements_file) and os.path.exists(installed_flag):
+                    # 检查 requirements.txt 是否比标记文件更新
+                    if os.path.getmtime(requirements_file) > os.path.getmtime(installed_flag):
+                        need_install = True
+
+                if need_install:
+                    print(Fore.GREEN + "正在项目虚拟环境中安装Packer-Fuzzer依赖..." + Style.RESET_ALL)
+                    # 使用项目根目录下的虚拟环境pip来安装Packer-Fuzzer目录中的requirements.txt
+                    subprocess.run([
+                        venv_pip, 'install', '-r', os.path.join(project_root, 'Packer-Fuzzer', 'requirements.txt')
+                    ], cwd=project_root, check=True)
+
+                    # 创建或更新标记文件
+                    with open(installed_flag, 'w') as f:
+                        f.write(str(time.time()))
+                else:
+                    print(Fore.GREEN + "Packer-Fuzzer依赖已安装，跳过安装步骤" + Style.RESET_ALL)
+
+                # 设置环境变量以解决编码问题
+                env = os.environ.copy()
+                env['NONCOMPREHENDING'] = 'utf-8'
+                if sys.platform == "win32":
+                    env['PYTHONLEGACYWINDOWSFSENCODING'] = '1'
+
+                # 运行 Packer-Fuzzer 扫描，使用 errors='ignore' 或 errors='replace' 来处理编码问题
                 print(Fore.GREEN + "正在运行Packer-Fuzzer扫描..." + Style.RESET_ALL)
                 result = subprocess.run([
-                    './venv/bin/python', 'PackerFuzzer.py', '-u', url
-                ], cwd=os.path.join(os.getcwd(), 'Packer-Fuzzer'), capture_output=True, text=True)
+                    venv_python, 'PackerFuzzer.py', '-u', url
+                ], cwd=os.path.join(project_root, 'Packer-Fuzzer'),
+                   capture_output=True, text=True, env=env,
+                   errors='replace')  # 添加 errors 参数来处理编码问题
 
                 # 查找生成的HTML报告
                 import glob
-                report_files = glob.glob(os.path.join(os.getcwd(), 'Packer-Fuzzer', 'reports', '*.html'))
+                report_files = glob.glob(os.path.join(project_root, 'Packer-Fuzzer', 'reports', '*.html'))
                 if report_files:
                     latest_report = max(report_files, key=os.path.getctime)
                     print(Fore.GREEN + "\nPacker-Fuzzer扫描报告已找到:" + Style.RESET_ALL)
@@ -406,6 +448,10 @@ def packer_fuzzer():
         print(Fore.RED + f"Packer-Fuzzer扫描期间出错: {str(e)}" + Style.RESET_ALL)
 
 
+
+
+
+
 def main():
 
     hhh()
@@ -416,17 +462,17 @@ def main():
 
     from lib.controller.controller import Controller
 
-    Controller()
-
-    jsfind()
-
-    run_bypass403()
-
-    ehole()
+    # Controller()
+    #
+    # jsfind()
+    #
+    # run_bypass403()
+    #
+    # ehole()
     
     packer_fuzzer()
     
-    swagger_scan()
+    # swagger_scan()
 
 
 
