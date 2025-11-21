@@ -3,16 +3,37 @@
 
 import deno_vm, os, re, sqlite3
 from urllib.parse import urlparse
-from lib.common.utils import Utils
-from lib.Database import DatabaseType
-from lib.DownloadJs import DownloadJs
-from lib.common.groupBy import GroupBy
-from lib.common.CreatLog import creatLog
+from .common.utils import Utils
+from .Database import DatabaseType
+from .DownloadJs import DownloadJs
+from .common.groupBy import GroupBy
+from .common.CreatLog import creatLog
 
 
 class RecoverSpilt():
+    """
+    恢复JS代码分割的主类，用于识别并恢复被分割的JavaScript文件。
+
+    Attributes:
+        name_list (list): 名称列表
+        remotePaths (list): 远程路径列表
+        jsFileNames (list): JS文件名列表
+        localFileNames (list): 本地文件名列表
+        remoteFileURLs (list): 远程文件URL列表
+        js_compile_results (list): JS编译结果列表
+        projectTag (str): 项目标识
+        options (object): 配置选项对象
+        log (Logger): 日志记录器
+    """
 
     def __init__(self, projectTag, options):
+        """
+        初始化RecoverSpilt实例
+
+        Args:
+            projectTag (str): 项目标识符
+            options (object): 配置选项对象
+        """
         self.name_list = []
         self.remotePaths = []
         self.jsFileNames = []
@@ -24,6 +45,16 @@ class RecoverSpilt():
         self.log = creatLog().get_logger()
 
     def jsCodeCompile(self, jsCode, jsFilePath):
+        """
+        编译JavaScript代码以恢复分割的文件路径
+
+        Args:
+            jsCode (str): 要编译的JavaScript代码
+            jsFilePath (str): JavaScript文件路径
+
+        Returns:
+            int: 成功返回None，失败返回0
+        """
         try:
             self.log.info(Utils().tellTime() + Utils().getMyWord("{get_codesplit}"))
             variable = re.findall(r'\[.*?\]', jsCode)
@@ -53,6 +84,8 @@ class RecoverSpilt():
             cursor.execute("select path from js_file where local='%s'" % (localFile))
             jsUrlPath = cursor.fetchone()[0]
             connect.close()
+
+            # 使用deno_vm执行JavaScript代码来获取实际文件路径
             with deno_vm.VM() as vm:
                 vm.run(jsCodeFunc)
                 for name in nameList:
@@ -69,6 +102,12 @@ class RecoverSpilt():
             return 0
 
     def checkCodeSpilting(self, jsFilePath):
+        """
+        检查JavaScript文件是否存在代码分割特征
+
+        Args:
+            jsFilePath (str): JavaScript文件路径
+        """
         jsOpen = open(jsFilePath, 'r', encoding='UTF-8',errors="ignore")  # 防编码报错
         jsFile = jsOpen.readlines()
         jsFile = str(jsFile)  # 二次转换防报错
@@ -84,6 +123,14 @@ class RecoverSpilt():
                         self.jsCodeCompile(jsCode, jsFilePath)
 
     def getRealFilePath(self, jsSplitId, jsFileNames, jsUrlpath):
+        """
+        获取真实的文件路径并下载对应的JavaScript文件
+
+        Args:
+            jsSplitId (int): JS分割ID
+            jsFileNames (list): JS文件名列表
+            jsUrlpath (str): JS URL路径
+        """
         # 我是没见过webpack异步加载的js和放异步的js不在同一个目录下的，这版先不管不同目录的情况吧
         jsRealPaths = []
         res = urlparse(jsUrlpath)
@@ -115,6 +162,12 @@ class RecoverSpilt():
             self.log.error("[Err] %s" % e)
 
     def checkSpiltingTwice(self, projectPath):
+        """
+        二次检查代码分割，通过模式匹配和爆破方式发现可能的分割文件
+
+        Args:
+            projectPath (str): 项目路径
+        """
         self.log.info(Utils().tellTime() + Utils().getMyWord("{check_codesplit_twice}"))
         for parent, dirnames, filenames in os.walk(projectPath, followlinks=True):
             for filename in filenames:
@@ -129,6 +182,8 @@ class RecoverSpilt():
                         newRemotePath = "/".join(tmpRemotePath) + "/"
                         self.remotePaths.append(newRemotePath)
         self.remotePaths = list(set(self.remotePaths))
+
+        # 根据文件数量选择不同的处理策略
         if len(self.localFileNames) > 3:  # 一切随缘
             localFileName = self.localFileNames[0]
             for baseurl in self.remotePaths:
@@ -166,7 +221,12 @@ class RecoverSpilt():
             DownloadJs(self.remoteFileURLs,self.options).downloadJs(self.projectTag, domain, 999)  # 999表示爆破
 
     def recoverStart(self):
+        """
+        启动代码分割恢复过程的主函数
+        """
         projectPath = DatabaseType(self.projectTag).getPathfromDB()
+
+        # 遍历项目路径下的所有文件进行代码分割检查
         for parent, dirnames, filenames in os.walk(projectPath, followlinks=True):
             for filename in filenames:
                 if filename != self.projectTag + ".db":
@@ -178,3 +238,4 @@ class RecoverSpilt():
         except Exception as e:
             self.log.error("[Err] %s" % e)
         self.log.info(Utils().tellTime() + Utils().getMyWord("{check_js_fini}"))
+
