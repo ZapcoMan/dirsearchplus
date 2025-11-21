@@ -15,7 +15,14 @@ from lib.utils.file import File, FileUtils
 
 
 def parse_options():
-    """解析命令行选项并进行初始化配置"""
+    """解析命令行选项并进行初始化配置
+
+    此函数负责处理用户输入的各种命令行参数，并根据这些参数完成程序运行所需的各项初始化工作。
+    包括 URL 列表来源判断、扩展名处理、代理设置、请求头构建等关键步骤。
+
+    返回值:
+        dict: 经过处理后的所有配置项组成的字典
+    """
     open("bypass403_url.txt", 'w').close()
     opt = parse_config(parse_arguments())
 
@@ -359,3 +366,4 @@ def parse_config(opt):
     )
 
     return opt
+
