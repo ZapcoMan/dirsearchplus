@@ -1,21 +1,3 @@
-# -*- coding: utf-8 -*-
-#  This program is free software; you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation; either version 2 of the License, or
-#  (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-#  MA 02110-1301, USA.
-#
-#  Author: Mauro Soria
-
 import difflib
 import re
 
@@ -23,6 +5,16 @@ from lib.core.settings import MAX_MATCH_RATIO
 
 
 class DynamicContentParser:
+    """
+    动态内容解析器，用于比较两个响应内容是否相似。
+
+    该类通过分析两个内容之间的差异来判断后续内容是否与基础内容属于同一结构，
+    主要应用于处理动态内容（如时间戳、随机数等）的网页响应匹配场景。
+
+    :param content1: 基准内容字符串
+    :param content2: 对比内容字符串
+    """
+
     def __init__(self, content1, content2):
         self._static_patterns = None
         self._differ = difflib.Differ()
@@ -36,13 +28,15 @@ class DynamicContentParser:
 
     def compare_to(self, content):
         """
-        DynamicContentParser.compare_to() workflow
+        将给定的内容与初始化时提供的基准内容进行对比，判断它们是否足够相似。
 
-          1. Check if the wildcard response is static or not, if yes, compare 2 responses
-          2. If it's not static, get static patterns (splitting by space) in both responses
-            and check if they match
-          3. In some rare cases, checking static patterns fails, so make a final confirmation
-            if the similarity ratio of 2 responses is not high enough to prove they are the same
+        比较流程如下：
+          1. 若初始内容完全相同（静态），则直接进行全等比较；
+          2. 否则提取当前内容中的稳定模式，并与已知的静态模式做匹配；
+          3. 如果静态模式匹配失败，则进一步使用序列相似度算法确认相似性；
+
+        :param content: 待比较的内容字符串
+        :return: bool - 表示内容是否足够相似
         """
 
         if self._is_static:
@@ -55,14 +49,30 @@ class DynamicContentParser:
 
     @staticmethod
     def get_static_patterns(patterns):
-        # difflib.Differ.compare returns something like below:
-        # ["  str1", "- str2", "+ str3", "  str4"]
-        #
-        # Get only stable patterns in the contents
+        """
+        从 difflib.Differ 的输出中筛选出稳定的文本片段。
+
+        difflib.Differ.compare 返回的结果格式类似：
+        ["  str1", "- str2", "+ str3", "  str4"]
+
+        其中以 "  " 开头的部分表示未发生变化的内容。此方法仅保留这些部分。
+
+        :param patterns: Differ 输出的差异列表
+        :return: list[str] - 所有不变的文本段组成的列表
+        """
         return [pattern for pattern in patterns if pattern.startswith("  ")]
 
 
 def generate_matching_regex(string1, string2):
+    """
+    根据两个字符串生成一个能同时匹配两者的正则表达式。
+
+    正则由前缀一致部分 + 中间任意字符 + 后缀一致部分组成。
+
+    :param string1: 第一个字符串
+    :param string2: 第二个字符串
+    :return: str - 构造出的正则表达式字符串
+    """
     start = "^"
     end = "$"
 
@@ -81,3 +91,4 @@ def generate_matching_regex(string1, string2):
             end = re.escape(char1) + end
 
     return start + end
+
