@@ -1,21 +1,3 @@
-# -*- coding: utf-8 -*-
-#  This program is free software; you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation; either version 2 of the License, or
-#  (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-#  MA 02110-1301, USA.
-#
-#  Author: Mauro Soria
-
 from lib.core.exceptions import InvalidRawRequest
 from lib.core.logger import logger
 from lib.parse.headers import HeadersParser
@@ -23,9 +5,27 @@ from lib.utils.file import File
 
 
 def parse_raw(raw_file):
+    """
+    解析原始HTTP请求文件，提取请求路径、方法、头部和主体信息
+
+    Args:
+        raw_file (str): 原始HTTP请求文件的路径
+
+    Returns:
+        tuple: 包含以下元素的元组:
+            - list: 请求URL列表，格式为[host+path]
+            - str: HTTP请求方法(如GET、POST等)
+            - dict: 请求头部信息字典
+            - str: 请求主体内容，如果没有则为None
+
+    Raises:
+        InvalidRawRequest: 当原始请求格式无效或缺少必要字段时抛出
+    """
+    # 读取原始请求文件内容
     with File(raw_file) as fd:
         raw_content = fd.read()
 
+    # 尝试按不同换行符分割请求头和请求体
     try:
         head, body = raw_content.split("\n\n", 1)
     except ValueError:
@@ -35,14 +35,16 @@ def parse_raw(raw_file):
             head = raw_content.strip("\n")
             body = None
 
+    # 解析请求行和头部信息
     try:
         method, path = head.splitlines()[0].split()[:2]
         headers = HeadersParser("\n".join(head.splitlines()[1:]))
         host = headers.get("host")
     except KeyError:
-        raise InvalidRawRequest("Can't find the Host header in the raw request")
+        raise InvalidRawRequest("在原始请求中找不到Host头")
     except Exception as e:
         logger.exception(e)
-        raise InvalidRawRequest("The raw request is formatively invalid")
+        raise InvalidRawRequest("原始请求在形成性上无效")
 
     return [host + path], method, dict(headers), body
+
