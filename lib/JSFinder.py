@@ -1,8 +1,3 @@
-#!/usr/bin/env python"
-# coding: utf-8
-# By Threezh1
-# https://threezh1.github.io/
-
 import requests, argparse, sys, re,csv,os
 import urllib3
 from urllib.parse import urlparse
@@ -18,6 +13,15 @@ init()
 
 # Regular expression comes from https://github.com/GerbenJavado/LinkFinder
 def extract_URL(JS):
+	"""
+	从JavaScript代码中提取URL链接
+
+	Args:
+		JS (str): 包含JavaScript代码的字符串
+
+	Returns:
+		list: 提取出的URL列表
+	"""
 	pattern_raw = r"""
 	  (?:"|')                               # Start newline delimiter
 	  (
@@ -51,6 +55,15 @@ def extract_URL(JS):
 
 # Get the page source
 def Extract_html(URL):
+	"""
+	获取指定URL的HTML页面源码
+
+	Args:
+		URL (str): 目标网页URL
+
+	Returns:
+		str: HTML页面源码，如果访问失败则返回None
+	"""
 	header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.108 Safari/537.36",
 			  }
 	# "Cookie": args.cookie}
@@ -63,6 +76,16 @@ def Extract_html(URL):
 
 # Handling relative URLs
 def process_url(URL, re_URL):
+	"""
+	处理相对URL，将其转换为完整的绝对URL
+
+	Args:
+		URL (str): 原始URL
+		re_URL (str): 需要处理的相对URL
+
+	Returns:
+		str: 处理后的完整URL
+	"""
 	black_url = ["javascript:"]	# Add some keyword for filter url.
 	URL_raw = urlparse(URL)
 	ab_URL = URL_raw.netloc
@@ -87,6 +110,16 @@ def process_url(URL, re_URL):
 	return result
 
 def find_last(string,str):
+	"""
+	查找字符串中某个子串的所有出现位置
+
+	Args:
+		string (str): 源字符串
+		str (str): 要查找的子串
+
+	Returns:
+		list: 所有匹配位置的索引列表
+	"""
 	positions = []
 	last_position=-1
 	while True:
@@ -97,6 +130,16 @@ def find_last(string,str):
 	return positions
 
 def find_by_url(url, js = False):
+	"""
+	从指定URL中提取所有链接
+
+	Args:
+		url (str): 目标网页URL
+		js (bool): 是否只处理JavaScript文件，默认False
+
+	Returns:
+		list: 提取到的URL列表
+	"""
 	if js == False:
 		try:
 			pass
@@ -104,7 +147,7 @@ def find_by_url(url, js = False):
 		except:
 			print("Please specify a URL like https://www.baidu.com")
 		html_raw = Extract_html(url)
-		if html_raw == None: 
+		if html_raw == None:
 			print("Fail to access " + url)
 			return None
 		#print(html_raw)
@@ -126,7 +169,7 @@ def find_by_url(url, js = False):
 			temp_urls = extract_URL(script_array[script])
 			if len(temp_urls) == 0: continue
 			for temp_url in temp_urls:
-				allurls.append(process_url(script, temp_url)) 
+				allurls.append(process_url(script, temp_url))
 		result = []
 		for singerurl in allurls:
 			url_raw = urlparse(url)
@@ -146,6 +189,16 @@ def find_by_url(url, js = False):
 
 
 def find_subdomain(urls, mainurl):
+	"""
+	从URL列表中提取子域名
+
+	Args:
+		urls (list): URL列表
+		mainurl (str): 主域名URL
+
+	Returns:
+		list: 子域名列表
+	"""
 	url_raw = urlparse(mainurl)
 	domain = url_raw.netloc
 	miandomain = domain
@@ -163,8 +216,17 @@ def find_subdomain(urls, mainurl):
 	return subdomains
 
 def find_by_url_deep(url):
+	"""
+	深度扫描URL，递归提取链接
+
+	Args:
+		url (str): 目标网页URL
+
+	Returns:
+		list: 所有提取到的URL列表
+	"""
 	html_raw = Extract_html(url)
-	if html_raw == None: 
+	if html_raw == None:
 		print("Fail to access " + url)
 		return None
 	html = BeautifulSoup(html_raw, "html.parser")
@@ -190,8 +252,18 @@ def find_by_url_deep(url):
 		i -= 1
 	return urls
 
-	
+
 def find_by_file(file_path, js=False):
+	"""
+	从文件中读取URL列表并提取链接
+
+	Args:
+		file_path (str): 包含URL的文件路径
+		js (bool): 是否只处理JavaScript文件，默认False
+
+	Returns:
+		list: 提取到的URL列表
+	"""
 	with open(file_path, "r") as fobject:
 		links = fobject.read().split("\n")
 	if links == []: return None
@@ -212,6 +284,16 @@ def find_by_file(file_path, js=False):
 	return urls
 
 def giveresult(urls, domian):
+	"""
+	处理和输出结果，包括状态码检测和文件保存
+
+	Args:
+		urls (list): URL列表
+		domian (str): 域名
+
+	Returns:
+		None
+	"""
 	sss=[]
 	if urls == None:
 		return None
@@ -220,6 +302,9 @@ def giveresult(urls, domian):
 	content_url = ""
 	content_subdomain = ""
 	def process_url(url):
+		"""
+		处理单个URL，检查其可访问性并获取状态码
+		"""
 		title=''
 		Exclusions=['.js','.png','.jpg','.ico','.css','.gif','.svg','.mp3','.wav','.mp4','.webm']
 		try:
@@ -256,11 +341,21 @@ def giveresult(urls, domian):
 
 
 	def main():
+		"""
+		使用线程池并发处理URL列表
+		"""
 		with ThreadPoolExecutor() as executor:
 			executor.map(process_url, urls)
 	main()
 
 	def GreateFile(sss,domian):
+		"""
+		将结果保存到CSV文件
+
+		Args:
+			sss (list): 结果数据列表
+			domian (str): 域名
+		"""
 		parsed_url = urlparse(domian)
 		domain1 = parsed_url.netloc
 		domain1=domain1.replace('.','_').replace(':','_')
@@ -292,3 +387,4 @@ def giveresult(urls, domian):
 		# 	f.write(http_url+'\n')
 		content_subdomain += subdomain + "\n"
 		print(subdomain)
+
