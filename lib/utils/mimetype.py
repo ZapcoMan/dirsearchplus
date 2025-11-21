@@ -1,21 +1,3 @@
-# -*- coding: utf-8 -*-
-#  This program is free software; you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation; either version 2 of the License, or
-#  (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-#  MA 02110-1301, USA.
-#
-#  Author: Mauro Soria
-
 import re
 import json
 
@@ -25,8 +7,18 @@ from lib.core.settings import QUERY_STRING_REGEX
 
 
 class MimeTypeUtils:
+    """
+    MIME类型检测工具类，提供各种数据格式的识别方法
+    """
+
     @staticmethod
     def is_json(content):
+        """
+        检测给定内容是否为有效的JSON格式
+
+        :param content: 待检测的字符串内容
+        :return: 如果内容是有效的JSON格式则返回True，否则返回False
+        """
         try:
             json.loads(content)
             return True
@@ -35,6 +27,12 @@ class MimeTypeUtils:
 
     @staticmethod
     def is_xml(content):
+        """
+        检测给定内容是否为有效的XML格式
+
+        :param content: 待检测的字符串内容
+        :return: 如果内容是有效的XML格式则返回True，否则返回False
+        """
         try:
             ElementTree.fromstring(content)
             return True
@@ -45,6 +43,12 @@ class MimeTypeUtils:
 
     @staticmethod
     def is_query_string(content):
+        """
+        检测给定内容是否为查询字符串格式（key=value&key2=value2）
+
+        :param content: 待检测的字符串内容
+        :return: 如果内容符合查询字符串格式则返回True，否则返回False
+        """
         if re.match(QUERY_STRING_REGEX, content):
             return True
 
@@ -52,6 +56,13 @@ class MimeTypeUtils:
 
 
 def guess_mimetype(content):
+    """
+    根据内容自动推测MIME类型
+
+    :param content: 待检测的字符串内容
+    :return: 推测出的MIME类型字符串
+    """
+    # 依次检测JSON、XML和查询字符串格式，返回对应的MIME类型
     if MimeTypeUtils.is_json(content):
         return "application/json"
     elif MimeTypeUtils.is_xml(content):
@@ -60,3 +71,4 @@ def guess_mimetype(content):
         return "application/x-www-form-urlencoded"
     else:
         return "text/plain"
+
