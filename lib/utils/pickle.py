@@ -1,21 +1,3 @@
-# -*- coding: utf-8 -*-
-#  This program is free software; you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation; either version 2 of the License, or
-#  (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-#  MA 02110-1301, USA.
-#
-#  Author: Mauro Soria
-
 try:
     import cPickle as _pickle
 except ModuleNotFoundError:
@@ -23,6 +5,8 @@ except ModuleNotFoundError:
 
 from lib.core.exceptions import UnpicklingError
 
+# 定义允许反序列化的类列表，用于限制pickle反序列化时可加载的类，
+# 防止任意代码执行等安全问题。
 ALLOWED_PICKLE_CLASSES = (
     "collections.OrderedDict",
     "http.cookiejar.DefaultCookiePolicy",
@@ -52,18 +36,52 @@ ALLOWED_PICKLE_CLASSES = (
 )
 
 
-# Reference: https://docs.python.org/3.4/library/pickle.html#restricting-globals
+# 参考文档：https://docs.python.org/3.4/library/pickle.html#restricting-globals
+# 自定义受限的Unpickler类，通过重写find_class方法来控制可以被反序列化的类，
+# 仅允许在ALLOWED_PICKLE_CLASSES中定义的类进行反序列化。
 class RestrictedUnpickler(_pickle.Unpickler):
+    """
+    一个受限制的pickle反序列化器，防止不安全的类被加载。
+
+    :param file: 要从中读取pickle数据的文件对象或类似文件的对象。
+    """
+
     def find_class(self, module, name):
+        """
+        控制哪些类可以从pickle流中恢复。
+
+        :param module: 类所在的模块名。
+        :param name: 类名。
+        :return: 对应的类对象（如果允许）。
+        :raises UnpicklingError: 如果尝试加载未授权的类。
+        """
+        # 检查请求的类是否在允许列表中
         if f"{module}.{name}" in ALLOWED_PICKLE_CLASSES:
             return super().find_class(module, name)
 
+        # 若不在白名单内则抛出异常阻止反序列化
         raise UnpicklingError()
 
 
 def unpickle(*args, **kwargs):
+    """
+    使用受限的Unpickler从给定的数据源中安全地反序列化对象。
+
+    :param args: 传递给RestrictedUnpickler构造函数的位置参数。
+    :param kwargs: 传递给RestrictedUnpickler构造函数的关键字参数。
+    :return: 反序列化后的Python对象。
+    """
     return RestrictedUnpickler(*args, **kwargs).load()
 
 
 def pickle(obj, *args, **kwargs):
+    """
+    将Python对象序列化为pickle格式并写入到指定的目标中。
+
+    :param obj: 要序列化的Python对象。
+    :param args: 传递给_pickle.Pickler构造函数的位置参数。
+    :param kwargs: 传递给_pickle.Pickler构造函数的关键字参数。
+    :return: None（结果将被写入到提供的目标中）。
+    """
     return _pickle.Pickler(*args, **kwargs).dump(obj)
+
