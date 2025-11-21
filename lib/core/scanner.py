@@ -1,18 +1,3 @@
-# -*- coding: utf-8 -*-
-#  本程序是自由软件；您可以重新分发它和/或修改它
-#  遵循自由软件基金会发布的GNU通用公共许可证的条款；
-#  许可证的版本2，或（根据您的选择）任何更高版本。
-#
-#  本程序的分发是希望它有用，
-#  但没有任何担保；甚至没有适销性或特定用途适用性的暗示保证。
-#  有关详细信息，请参阅GNU通用公共许可证。
-#
-#  您应该已经收到GNU通用公共许可证的副本；
-#  如果没有，请写信给自由软件基金会，地址：51 Franklin Street, Fifth Floor, Boston,
-#  MA 02110-1301, USA.
-#
-#  作者: Mauro Soria
-
 import re
 
 from urllib.parse import unquote
@@ -29,6 +14,15 @@ from lib.utils.random import rand_string
 
 
 class Scanner:
+    """
+    用于扫描和识别通配符响应行为的类。该类通过发送随机路径请求来构建通配符响应模型，并判断后续响应是否属于通配符类型。
+
+    :param requester: 请求对象，负责实际发起HTTP请求
+    :param path: 路径模板字符串，其中可能包含通配符测试点标记
+    :param tested: 已经测试过的其他Scanner实例字典，用于避免重复测试
+    :param context: 当前上下文描述信息，默认为"所有情况"
+    """
+
     def __init__(self, requester, **kwargs):
         self.path = kwargs.get("path", "")
         self.tested = kwargs.get("tested", [])
@@ -40,7 +34,8 @@ class Scanner:
 
     def setup(self):
         """
-        生成通配符响应信息容器，这将用于与其他路径响应进行比较
+        初始化阶段，生成两个不同随机路径的响应作为基准，建立通配符响应的内容解析器和重定向正则表达式。
+        如果已有相同的响应存在，则复用其结果以减少网络请求次数。
         """
 
         first_path = self.path.replace(
@@ -78,6 +73,12 @@ class Scanner:
         )
 
     def get_duplicate(self, response):
+        """
+        查找是否存在与当前响应完全一致的历史测试记录。
+
+        :param response: 待比对的响应对象
+        :return: 若找到匹配项则返回对应的Scanner实例，否则返回None
+        """
         for category in self.tested:
             for tester in self.tested[category].values():
                 if response == tester.response:
@@ -86,7 +87,12 @@ class Scanner:
         return None
 
     def is_wildcard(self, response):
-        """检查响应是否与通配符响应相似"""
+        """
+        判断给定响应是否符合通配符响应特征。
+
+        :param response: 待判断的响应对象
+        :return: 如果响应内容与通配符响应相似则返回True，否则返回False
+        """
 
         # 比较2个二进制响应（如果正文是二进制的，则Response.content为空）
         if not self.response.content and not response.content:
@@ -96,7 +102,11 @@ class Scanner:
 
     def check(self, path, response):
         """
-        执行分析以查看响应是否为通配符
+        对指定路径及其响应进行综合分析，确定是否应将其视为有效发现而非通配符响应。
+
+        :param path: 实际访问的路径字符串
+        :param response: 响应对象
+        :return: 如果不是通配符响应则返回True，表示可能是有效的路径；如果是通配符响应则返回False
         """
 
         if self.response.status != response.status:
@@ -128,15 +138,13 @@ class Scanner:
     @staticmethod
     def generate_redirect_regex(first_loc, first_path, second_loc, second_path):
         """
-        从2个通配符响应的重定向中，生成一个匹配每个通配符重定向的正则表达式。
+        根据两次通配符响应的重定向地址生成一个能够匹配所有类似通配符重定向的正则表达式。
 
-        工作原理：
-        1. 用标记替换2个重定向URL中的路径（如果它被反射出来）
-           （例如 /path1 -> /foo/path1 和 /path2 -> /foo/path2 都会变成 /foo/[mark]）
-        2. 比较2个重定向并生成匹配两者的正则表达式
-           （例如 /foo/[mark]?a=1 和 /foo/[mark]?a=2 将有正则表达式: ^/foo/[mark]?a=(.*)$）
-        3. 下次重定向时，用路径替换正则表达式中的标记并检查是否匹配
-           （例如 /path3 -> /foo/path3?a=5，正则表达式变成 ^/foo/path3?a=(.*)$，匹配成功）
+        :param first_loc: 第一次响应的重定向地址
+        :param first_path: 第一次使用的随机路径
+        :param second_loc: 第二次响应的重定向地址
+        :param second_path: 第二次使用的随机路径
+        :return: 匹配通配符重定向的正则表达式字符串
         """
 
         if first_path:
@@ -145,3 +153,4 @@ class Scanner:
             second_loc = unquote(second_loc).replace(second_path, REFLECTED_PATH_MARKER)
 
         return generate_matching_regex(first_loc, second_loc)
+
