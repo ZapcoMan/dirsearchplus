@@ -1,17 +1,3 @@
-# -*- coding: utf-8 -*-
-#  本程序是自由软件；您可以重新分发它和/或修改它
-#  遵循自由软件基金会发布的GNU通用公共许可证的条款；
-#  许可证的版本2，或（根据您的选择）任何更高版本。
-#
-#  本程序的分发是希望它有用，
-#  但没有任何担保；甚至没有适销性或特定用途适用性的暗示保证。
-#  有关详细信息，请参阅GNU通用公共许可证。
-#
-#  您应该已经收到GNU通用公共许可证的副本；
-#  如果没有，请写信给自由软件基金会，地址：51 Franklin Street, Fifth Floor, Boston,
-#  MA 02110-1301, USA.
-#
-#  作者: Mauro Soria
 from optparse import OptionParser, OptionGroup
 
 from lib.core.settings import VERSION, SCRIPT_PATH, AUTHENTICATION_TYPES
@@ -19,11 +5,27 @@ from lib.utils.file import FileUtils
 
 
 def parse_arguments():
-    # 使用说明: %prog [-u|--url] 目标 [-e|--extensions] 扩展名 [选项]
+    """
+    解析命令行参数并返回解析后的选项对象。
+
+    此函数使用 OptionParser 构建完整的命令行接口，包括：
+    - 必需参数（如 URL、文件路径等）
+    - 字典设置（扩展名、大小写处理等）
+    - 常规设置（线程数、递归深度等）
+    - 请求设置（HTTP 方法、头部、认证信息等）
+    - 连接设置（代理、超时、延迟等）
+    - 高级功能（爬虫、绕过机制等）
+    - 显示与输出控制（颜色、格式化、日志等）
+
+    返回:
+        options (Values): 包含所有解析后命令行参数的对象。
+    """
+
+    # 定义程序的基本用法说明
     usage = "用法: %prog [-u|--url] 目标 [-e|--extensions] 扩展名 [选项]"
     parser = OptionParser(usage, version=f"dirsearch v{VERSION}")
 
-    # 必需参数
+    # === 必需参数组 ===
     mandatory = OptionGroup(parser, "必需参数")
     mandatory.add_option(
         "-u",
@@ -115,7 +117,7 @@ def parse_arguments():
         default=FileUtils.build_path(SCRIPT_PATH, "config.ini"),
     )
 
-    # 字典设置
+    # === 字典设置组 ===
     dictionary = OptionGroup(parser, "字典设置")
     dictionary.add_option(
         "-w",
@@ -192,7 +194,7 @@ def parse_arguments():
         help="首字母大写单词列表",
     )
 
-    # 常规设置
+    # === 常规设置组 ===
     general = OptionGroup(parser, "常规设置")
     general.add_option(
         "-t",
@@ -343,7 +345,7 @@ def parse_arguments():
         help="发生错误时退出",
     )
 
-    # 请求设置
+    # === 请求设置组 ===
     request = OptionGroup(parser, "请求设置")
     request.add_option(
         "-m",
@@ -432,7 +434,7 @@ def parse_arguments():
         dest="cookie"
     )
 
-    # 连接设置
+    # === 连接设置组 ===
     connection = OptionGroup(parser, "连接设置")
     connection.add_option(
         "--timeout",
@@ -512,7 +514,7 @@ def parse_arguments():
         help="服务器IP地址"
     )
 
-    # 高级设置
+    # === 高级设置组 ===
     advanced = OptionGroup(parser, "高级设置")
     advanced.add_option(
         "--crawl",
@@ -521,7 +523,7 @@ def parse_arguments():
         help="在响应中爬取新路径"
     )
 
-    # 显示设置
+    # === 显示设置组 ===
     view = OptionGroup(parser, "显示设置")
     view.add_option(
         "--full-url",
@@ -549,7 +551,7 @@ def parse_arguments():
         help="安静模式"
     )
 
-    # 输出设置
+    # === 输出设置组 ===
     output = OptionGroup(parser, "输出设置")
     output.add_option(
         "-o",
@@ -574,6 +576,7 @@ def parse_arguments():
         help="日志文件"
     )
 
+    # 将各个选项组加入主解析器
     parser.add_option_group(mandatory)
     parser.add_option_group(dictionary)
     parser.add_option_group(general)
@@ -582,6 +585,8 @@ def parse_arguments():
     parser.add_option_group(advanced)
     parser.add_option_group(view)
     parser.add_option_group(output)
+
+    # 解析命令行参数
     options, _ = parser.parse_args()
 
     return options
