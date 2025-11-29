@@ -175,10 +175,12 @@ class Output:
         参数:
             directories (list): 新增目录列表。
         """
+        # current_time =
+        current_time = set_color(time.strftime("%H:%M:%S"), fore="cyan", style="bright")
         message = set_color(
-            f"Added to the queue: {', '.join(directories)}", fore="yellow", style="dim"
+            f"Added to the queue: {', '.join(directories)}", fore="cyan", style="bright"
         )
-        self.new_line(message)
+        self.new_line(f"[{current_time}] {message}")
 
     def error(self, reason):
         """

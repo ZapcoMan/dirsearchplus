@@ -2,6 +2,10 @@ import requests, validators, os, tldextract,sys
 from colorama import init, Fore, Style
 from pyfiglet import Figlet
 from requests.packages import urllib3
+
+from lib.view.terminal import output
+from lib.view.colors import set_color
+
 urllib3.disable_warnings()
 import time
 
@@ -209,16 +213,18 @@ class Query():
         Returns:
             str: 表示颜色的ANSI转义序列。
         """
-        if status_code == 200 or status_code == 201:
-            colour = Fore.GREEN + Style.BRIGHT
-        elif status_code == 301 or status_code == 302:
-            colour = Fore.BLUE + Style.BRIGHT
-        elif status_code == 403 or status_code == 404:
-            colour = Fore.MAGENTA + Style.BRIGHT
-        elif status_code == 500:
-            colour = Fore.RED + Style.BRIGHT
+        if status_code in (200, 201, 204):
+            colour = set_color(str(status_code), fore="green")
+        elif status_code == 401:
+            colour = set_color(str(status_code), fore="yellow")
+        elif status_code == 403:
+            colour = set_color(str(status_code), fore="blue")
+        elif status_code in range(500, 600):
+            colour = set_color(str(status_code), fore="red")
+        elif status_code in range(300, 400):
+            colour = set_color(str(status_code), fore="cyan")
         else:
-            colour = Fore.WHITE + Style.BRIGHT
+            colour = set_color(str(status_code), fore="magenta")
 
         return colour
 
@@ -274,18 +280,26 @@ class Query():
 
         line_width = 70
         target_address = "POST --> " + self.url + self.dir
-        info = f"STATUS: {colour}{p.status_code}{reset}\tSIZE: {len(p.content)}"
+        target_address = set_color(target_address, fore="green")
+        info = f"STATUS: {colour}\tSIZE: {len(p.content)}"
+        info = set_color(info, fore="green")
         info_pure = f"STATUS: {p.status_code}\tSIZE: {len(p.content)}"
+        info_pure = set_color(info_pure, fore="green")
         remaining = line_width - len(target_address)
         if p.status_code !=403:
-            print(target_address + " " * remaining + info+'\n',end='')
+            current_time = time.strftime("%H:%M:%S")
+            message = f"[{current_time}] " + target_address + " " * remaining + info
+            output.new_line(set_color(message, fore="green"))
 
         if p.status_code==200:
             res_h = self.send_request('GET', self.url)
             if res_h and len(p.content) != len(res_h.content):
-                results.append(target_address + " " * remaining + info_pure)
+                # results.append(target_address + " " * remaining + info_pure)
+                message = target_address + " " * remaining + info_pure
+                results.append(set_color(message, fore="green"))
         else:
-            results.append(target_address + " " * remaining + info_pure)
+            message = target_address + " " * remaining + info_pure
+            results.append(set_color(message, fore="green"))
 
         self.writeToFile(results)
 
@@ -306,18 +320,25 @@ class Query():
 
             colour = self.checkStatusCode(r.status_code)
 
-            target_address = "GET --> " + self.url + path
-            info = f"STATUS: {colour}{r.status_code}{reset}\tSIZE: {len(r.content)}"
+            target_address =  "GET --> "+ self.url + path
+            target_address = set_color(target_address, fore="green")
+            info = f"STATUS: {colour}\tSIZE: {len(r.content)}"
+            info = set_color(info, fore="green")
             info_pure = f"STATUS: {r.status_code}\tSIZE: {len(r.content)}"
+            info_pure = set_color(info_pure, fore="green")
             remaining = line_width - len(target_address)
             if r.status_code != 403:
-                print(target_address + " " * remaining + info+'\n',end='')
+                current_time = time.strftime("%H:%M:%S")
+                message = f"[{current_time}] " + target_address + " " * remaining + info
+                output.new_line(set_color(message, fore="green"))
             if r.status_code==200:
                 res_h = self.send_request('GET', self.url)
                 if res_h and len(r.content) != len(res_h.content):
-                    results.append(target_address + " " * remaining + info_pure)
+                    message = target_address + " " * remaining + info_pure
+                    results.append(set_color(message, fore="green"))
             else:
-                results.append(target_address + " " * remaining + info_pure)
+                message = target_address + " " * remaining + info_pure
+                results.append(set_color(message, fore="yellow"))
 
         self.writeToFile(results)
         self.manipulateHeaders()
@@ -337,20 +358,29 @@ class Query():
             colour = self.checkStatusCode(r.status_code)
             reset = Style.RESET_ALL
 
-            target_address = "GET --> " + self.url + self.dir
-            info = f"STATUS: {colour}{r.status_code}{reset}\tSIZE: {len(r.content)}"
+            target_address = set_color(" GET -->" , fore="green") + self.url + self.dir
+            target_address = set_color(target_address, fore="green")
+            info = f"STATUS: {colour}\tSIZE: {len(r.content)}"
             info_pure = f"STATUS: {r.status_code}\tSIZE: {len(r.content)}"
+            info_pure = set_color(info_pure, fore="green")
             remaining = line_width - len(target_address)
 
             if r.status_code != 403:
-                print("\n" + target_address + " " * remaining + info+'\n',end='')
-                print(f"Header= {header}"+'\n',end='')
+                current_time = time.strftime("%H:%M:%S")
+                message = f"[{current_time}] " + target_address + " " * remaining + info
+                output.new_line(set_color(message, fore="green"))
+                
+                header_message = f"[{current_time}] Header= {header}"
+                # output.new_line(header_message)
+                output.new_line(set_color(header_message, fore="green"))
             if r.status_code==200:
                 res_h = self.send_request('GET', self.url)
                 if res_h and len(r.content) !=len(res_h.content):
-                    results.append("\n" + target_address + " " * remaining + info_pure+ f"---Header= {header}")
+                    message = "\n" + target_address + " " * remaining + info_pure+ f"---Header= {header}"
+                    results.append(set_color(message, fore="green"))
             else:
-                results.append("\n" + target_address + " " * remaining + info_pure + f"---Header= {header}")
+                message ="\n" + target_address + " " * remaining + info_pure + f"---Header= {header}"
+                results.append(set_color(message, fore="yellow"))
         self.writeToFile(results)
 
         results_2 = []
@@ -363,19 +393,26 @@ class Query():
             reset = Style.RESET_ALL
 
             target_address = "GET --> " + self.url
-            info = f"STATUS: {colour}{r.status_code}{reset}\tSIZE: {len(r.content)}"
+            target_address = set_color(target_address, fore="green")
+            info = f"" + set_color("STATUS:", fore="green") + " {colour}\tSIZE: {len(r.content)}"
+            info = set_color(info, fore="green")
             info_pure = f"STATUS: {r.status_code}\tSIZE: {len(r.content)}"
+            info_pure = set_color(info_pure, fore="green")
             remaining = line_width - len(target_address)
 
-            if r.status_code !=403:
-                print("\n" + target_address + " " * remaining + info+'\n',end='')
-                print(f"Header= {header}"+'\n',end='')
+            if r.status_code != 403:
+                current_time = time.strftime("%H:%M:%S")
+                message = f"[{current_time}] " + target_address + " " * remaining + info
+                output.new_line(set_color(message, fore="green"))
+                
+                header_message = f"[{current_time}] Header= {header}"
+                output.new_line(set_color(header_message, fore="green"))
             if r.status_code ==200:
                 res_h = self.send_request('GET', self.url)
                 if res_h and len(r.content) != len(res_h.content):
-                    results_2.append("\n" + target_address + " " * remaining + info_pure + f"---Header= {header}")
+                    results_2.append(set_color("\n" + target_address + " " * remaining + info_pure + f"---Header= {header}", fore="green"))
             else:
-                results_2.append("\n" + target_address + " " * remaining + info_pure + f"---Header= {header}")
+                results_2.append(set_color("\n" + target_address + " " * remaining + info_pure + f"---Header= {header}", fore="yellow"))
 
         self.writeToFile(results_2)
 

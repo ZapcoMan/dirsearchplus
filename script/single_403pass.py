@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
     # 获取并保存URL参数到文件
     url=args.url
-    with open('../bypass403_url.txt', 'w') as f:
+    with open('../resources/bypass403_url.txt', 'w') as f:
         f.write(url)
 
     # 获取路径参数并调用绕过函数

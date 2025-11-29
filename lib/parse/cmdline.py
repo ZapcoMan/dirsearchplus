@@ -67,6 +67,15 @@ def parse_arguments():
         metavar="",
         help="包混淆扫描(是/否)",
     )
+    # 在必需参数组中添加新的选项
+    mandatory.add_option(
+        "-a",
+        "--all",
+        action="store_true",
+        dest="all_modules",
+        help="启动所有功能模块(bypass, jsfind, zwsb, packer-fuzzer, swagger)",
+    )
+
     mandatory.add_option(
         "--swagger",
         action="append",

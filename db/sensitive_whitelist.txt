@@ -1,0 +1,12 @@
+# 敏感信息误报白名单
+# 格式: 类型:值
+# 例如:
+# api_key:sk_test1234567890abcdef
+# email:user@example.com
+
+api_key:sk_test
+api_key:test_key
+password:password123
+password:123456
+email:user@example.com
+email:admin@example.com

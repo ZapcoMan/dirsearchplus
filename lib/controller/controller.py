@@ -46,6 +46,7 @@ from lib.utils.common import get_valid_filename, lstrip_once
 from lib.utils.file import FileUtils
 from lib.utils.pickle import pickle, unpickle
 from lib.utils.schemedet import detect_scheme
+from lib.view.colors import set_color
 from lib.view.terminal import output
 
 
@@ -256,8 +257,9 @@ class Controller:
 
             finally:
                 self.targets.pop(0)
-
-        output.warning("\nTask Completed")
+        current_time = time.strftime("%H:%M:%S")
+        message = set_color("Task Completed", fore="yellow", style="bright")
+        output.warning(f"[{current_time}] {message}")
 
         if options["session_file"]:
             try:

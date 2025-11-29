@@ -19,6 +19,10 @@ urllib3.disable_warnings()
 # 初始化colorama库用于终端颜色输出
 init()
 
+# 导入dirsearch的日志模块
+from lib.view.terminal import output
+from lib.view.colors import set_color
+
 class OptimizedArguments():
     """
     参数解析与验证类
@@ -262,16 +266,18 @@ class OptimizedQuery():
         Returns:
             str: 颜色代码字符串
         """
-        if status_code == 200 or status_code == 201:
-            return Fore.GREEN + Style.BRIGHT
-        elif status_code == 301 or status_code == 302:
-            return Fore.BLUE + Style.BRIGHT
-        elif status_code == 403 or status_code == 404:
-            return Fore.MAGENTA + Style.BRIGHT
-        elif status_code == 500:
-            return Fore.RED + Style.BRIGHT
+        if status_code in (200, 201, 204):
+            return set_color(str(status_code), fore="green")
+        elif status_code == 401:
+            return set_color(str(status_code), fore="yellow")
+        elif status_code == 403:
+            return set_color(str(status_code), fore="blue")
+        elif status_code in range(500, 600):
+            return set_color(str(status_code), fore="red")
+        elif status_code in range(300, 400):
+            return set_color(str(status_code), fore="cyan")
         else:
-            return Fore.WHITE + Style.BRIGHT
+            return set_color(str(status_code), fore="magenta")
 
     def send_request(self, method, url, **kwargs):
         """
@@ -314,11 +320,10 @@ class OptimizedQuery():
                 return None
 
             colour = self.checkStatusCode(r.status_code)
-            reset = Style.RESET_ALL
             line_width = 70
 
             target_address = f"{method} --> {self.url}{path}"
-            info = f"STATUS: {colour}{r.status_code}{reset}\tSIZE: {len(r.content)}"
+            info = f"STATUS: {colour}\tSIZE: {len(r.content)}"
             info_pure = f"STATUS: {r.status_code}\tSIZE: {len(r.content)}"
             remaining = line_width - len(target_address)
 
@@ -334,9 +339,12 @@ class OptimizedQuery():
 
             # 只显示非403状态码
             if r.status_code != 403:
-                print(target_address + " " * remaining + info + '\n', end='')
+                current_time = time.strftime("%H:%M:%S")
+                message = f"[{current_time}] {target_address} " + " " * remaining + info
+                output.new_line(message)
                 if headers:
-                    print(f"Header= {headers}" + '\n', end='')
+                    header_message = f"[{current_time}] Header= {headers}"
+                    output.new_line(header_message)
 
             return result
         except Exception:
@@ -424,7 +432,7 @@ class OptimizedProgram():
         max_workers (int): 最大工作线程数，默认为20
     """
 
-    def __init__(self, urllist, dirlist, max_workers=20):
+    def __init__(self, urllist, dirlist, max_workers=40):
         self.urllist = urllist
         self.dirlist = dirlist
         self.max_workers = max_workers
@@ -517,8 +525,13 @@ class OptimizedProgram():
         初始化并启动主程序执行流程
         使用线程池并发处理所有URL和目录路径的组合
         """
-        print(f"开始处理 {len(self.urllist)} 个URL和 {len(self.dirlist)} 个路径")
-        print(f"使用 {self.max_workers} 个并发工作线程")
+        current_time = time.strftime("%H:%M:%S")
+        message = f"[{current_time}] 开始处理 {len(self.urllist)} 个URL和 {len(self.dirlist)} 个路径"
+        output.new_line(set_color(message, fore="green"))
+        
+        current_time = time.strftime("%H:%M:%S")
+        message = f"[{current_time}] 使用 {self.max_workers} 个并发工作线程"
+        output.new_line(set_color(message, fore="green"))
 
         start_time = time.time()
 
@@ -540,10 +553,19 @@ class OptimizedProgram():
                     future.result()
                     completed += 1
                     if completed % 10 == 0:
-                        print(f"进度: {completed}/{total} ({completed/total*100:.1f}%)")
+                        current_time = time.strftime("%H:%M:%S")
+                        message = f"[{current_time}] 进度: {completed}/{total} ({completed/total*100:.1f}%)"
+                        output.new_line(set_color(message, fore="cyan"))
                 except Exception as e:
-                    print(f"任务执行出错: {e}")
+                    current_time = time.strftime("%H:%M:%S")
+                    message = f"[{current_time}] 任务执行出错: {e}"
+                    output.error(set_color(message, fore="red"))
         
         end_time = time.time()
-        print(f"处理完成! 总耗时: {end_time - start_time:.2f} 秒")
-        print(f"平均每个任务耗时: {(end_time - start_time) / total:.2f} 秒")
+        current_time = time.strftime("%H:%M:%S")
+        message = f"[{current_time}] 处理完成! 总耗时: {end_time - start_time:.2f} 秒"
+        output.new_line(set_color(message, fore="green"))
+        
+        current_time = time.strftime("%H:%M:%S")
+        message = f"[{current_time}] 平均每个任务耗时: {(end_time - start_time) / total:.2f} 秒"
+        output.new_line(set_color(message, fore="green"))
