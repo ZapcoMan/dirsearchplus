@@ -11,7 +11,7 @@ with open('resources/bypass403_url.txt', 'w') as f:
     f.write('example.com')
 
 # 导入并调用函数
-from dirsearchX import subfinder_scan
+from dirsearchplus import subfinder_scan
 
 if __name__ == "__main__":
     # subfinder_scan()
