@@ -30,36 +30,36 @@ dirsearchPlus 是一个增强版的 Web 路径扫描工具，在原版 dirsearch
 
 ```bash
 # 基础目录扫描
-python dirsearchX.py -u "http://www.example.com/"
+python dirsearchplus.py -u "http://www.example.com/"
 
 # 启用 403 绕过功能
-python dirsearchX.py -u "http://www.example.com/" -b yes
+python dirsearchplus.py -u "http://www.example.com/" -b yes
 
 # 启用 JS 信息收集功能
-python dirsearchX.py -u "http://www.example.com/" -j yes
+python dirsearchplus.py -u "http://www.example.com/" -j yes
 
 # 启用子域名爆破功能
-python dirsearchX.py -u "http://www.example.com/" -d yes
+python dirsearchplus.py -u "http://www.example.com/" -d yes
 
 # 同时启用多个功能
-python dirsearchX.py -u "http://www.example.com/" -b yes -j yes -d yes
+python dirsearchplus.py -u "http://www.example.com/" -b yes -j yes -d yes
 ```
 
 ### 一键启用所有功能
 
 ```bash
 # 一键启用所有模块（403绕过、JS查找、指纹识别、Packer-Fuzzer、Swagger扫描、子域名扫描）
-python dirsearchX.py -u "http://www.example.com/" -a
+python dirsearchplus.py -u "http://www.example.com/" -a
 ```
 
 ### 实际使用示例
 
 ```bash
 # 针对特定网站的基础扫描
-python dirsearchX.py -u https://www.lenovo.com.cn/ -a -r --deep-recursive --recursion-status 200-399 --exclude-text "404" --exclude-text "502" --exclude-text "Not Found" --exclude-text "Error" -t 50 --wordlists .\db\simple_dicc.txt
+python dirsearchplus.py -u https://www.lenovo.com.cn/ -a -r --deep-recursive --recursion-status 200-399 --exclude-text "404" --exclude-text "502" --exclude-text "Not Found" --exclude-text "Error" -t 50 --wordlists .\db\simple_dicc.txt
 
 # 完整功能扫描（包含所有模块）
-python dirsearchX.py -u https://www.lenovo.com.cn/ -b yes -j yes -z yes -p yes --swagger yes -d yes -r --deep-recursive --recursion-status 200-399 --exclude-text "404" --exclude-text "502" --exclude-text "Not Found" --exclude-text "Error" -t 50 --wordlists .\db\simple_dicc.txt
+python dirsearchplus.py -u https://www.lenovo.com.cn/ -b yes -j yes -z yes -p yes --swagger yes -d yes -r --deep-recursive --recursion-status 200-399 --exclude-text "404" --exclude-text "502" --exclude-text "Not Found" --exclude-text "Error" -t 50 --wordlists .\db\simple_dicc.txt
 ```
 
 ## 模块功能详解
@@ -69,7 +69,7 @@ python dirsearchX.py -u https://www.lenovo.com.cn/ -b yes -j yes -z yes -p yes -
 对扫描结果中 403 状态的路径进行绕过测试。
 
 ```bash
-python dirsearchX.py -u "http://www.example.com/" -b yes
+python dirsearchplus.py -u "http://www.example.com/" -b yes
 ```
 
 单独对指定目录进行绕过测试：
@@ -83,7 +83,7 @@ python single_403pass.py -u "http://www.example.com/" -p "/index.php"
 从目标网站的 JavaScript 文件中提取 URL 和子域名信息。
 
 ```bash
-python dirsearchX.py -u "http://www.example.com/" -j yes
+python dirsearchplus.py -u "http://www.example.com/" -j yes
 ```
 
 ### 指纹识别 (-z yes)
@@ -91,7 +91,7 @@ python dirsearchX.py -u "http://www.example.com/" -j yes
 使用 EHole 进行网站指纹识别，识别目标使用的技术框架。
 
 ```bash
-python dirsearchX.py -u "http://www.example.com/" -z yes
+python dirsearchplus.py -u "http://www.example.com/" -z yes
 ```
 
 ### Packer-Fuzzer (-p yes)
@@ -99,7 +99,7 @@ python dirsearchX.py -u "http://www.example.com/" -z yes
 针对前端打包器（如 Webpack）的检测和模糊测试工具。
 
 ```bash
-python dirsearchX.py -u "http://www.example.com/" -p yes
+python dirsearchplus.py -u "http://www.example.com/" -p yes
 ```
 
 注意：如果提示模块已安装但仍报错，请删除 `/Packer-Fuzzer` 目录下的 `venv` 文件夹后重新运行。
@@ -109,7 +109,7 @@ python dirsearchX.py -u "http://www.example.com/" -p yes
 对发现的 Swagger 接口进行未授权访问测试。
 
 ```bash
-python dirsearchX.py -u "http://www.example.com/" --swagger yes
+python dirsearchplus.py -u "http://www.example.com/" --swagger yes
 ```
 
 ### 子域名爆破 (-d yes)
@@ -117,7 +117,7 @@ python dirsearchX.py -u "http://www.example.com/" --swagger yes
 使用 SubFinder 进行子域名爆破，发现目标的子域名信息。
 
 ```bash
-python dirsearchX.py -u "http://www.example.com/" -d yes
+python dirsearchplus.py -u "http://www.example.com/" -d yes
 ```
 
 该模块会自动从 resources/bypass403_url.txt 文件中读取目标域名，并进行子域名扫描。扫描结果将显示发现的子域名及其相关信息。
@@ -130,19 +130,19 @@ python dirsearchX.py -u "http://www.example.com/" -d yes
 
 ```bash
 # 扫描常见 API 端点
-python dirsearchX.py -u https://target.com -w db/api-endpoints.txt -e json,xml
+python dirsearchplus.py -u https://target.com -w db/api-endpoints.txt -e json,xml
 
 # 扫描 RESTful 资源
-python dirsearchX.py -u https://target.com --wordlists db/api-endpoints.txt
+python dirsearchplus.py -u https://target.com --wordlists db/api-endpoints.txt
 
 # 扫描 Spring Boot 应用
-python dirsearchX.py -u https://target.com --wordlists db/spring-boot-endpoints.txt
+python dirsearchplus.py -u https://target.com --wordlists db/spring-boot-endpoints.txt
 
 # 扫描 Spring Boot Actuator 端点
-python dirsearchX.py -u https://target.com --wordlists db/spring-boot-actuator.txt
+python dirsearchplus.py -u https://target.com --wordlists db/spring-boot-actuator.txt
 
 # 扫描 RuoYI 框架应用
-python dirsearchX.py -u https://target.com --wordlists db/ruoyi-endpoints.txt
+python dirsearchplus.py -u https://target.com --wordlists db/ruoyi-endpoints.txt
 ```
 
 ### 框架专用字典说明
@@ -171,14 +171,14 @@ python dirsearchX.py -u https://target.com --wordlists db/ruoyi-endpoints.txt
 
 ```bash
 # 排除常见的错误响应内容
-python dirsearchX.py -u https://target.com \
+python dirsearchplus.py -u https://target.com \
   --exclude-text "Not Found" \
   --exclude-text "Error" \
   --exclude-text "404" \
   --exclude-regex "\"error\":\s*true"
 
 # 根据响应大小过滤
-python dirsearchX.py -u https://target.com \
+python dirsearchplus.py -u https://target.com \
   --exclude-sizes 0B,2KB \
   --exclude-text "页面不存在"
 ```
@@ -187,12 +187,12 @@ python dirsearchX.py -u https://target.com \
 
 ```bash
 # 扫描常见的 RESTful 资源和 HTTP 方法
-python dirsearchX.py -u https://target.com/api/ \
+python dirsearchplus.py -u https://target.com/api/ \
   -w db/api-endpoints.txt \
   --exclude-status 405
 
 # 使用递归扫描深入 API 结构
-python dirsearchX.py -u https://target.com/api/ \
+python dirsearchplus.py -u https://target.com/api/ \
   -r --deep-recursive \
   --recursion-status 200-399
 ```
@@ -203,7 +203,7 @@ API 通常需要特定的请求头或认证：
 
 ```bash
 # 添加 API 密钥或认证头
-python dirsearchX.py -u https://target.com/api/ \
+python dirsearchplus.py -u https://target.com/api/ \
   -H "Authorization: Bearer your-token-here" \
   -H "Content-Type: application/json" \
   -H "X-API-Key: your-api-key"
