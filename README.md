@@ -11,7 +11,10 @@ dirsearchPlus 是一个增强版的 Web 路径扫描工具，在原版 dirsearch
 - 📦 前端打包器检测（Packer-Fuzzer）
 - 🌐 Swagger 接口未授权访问检测
 - 🔍 子域名爆破扫描（SubFinder）
+- ⚠️ 参数污染检测（HPP/HFP）
 - 🚀 一键启用所有模块功能
+- 🔥 SSRF漏洞深度探测
+- 🧠 动态API枚举（基于行为推断）
 
 ## 运行流程
 
@@ -122,6 +125,26 @@ python dirsearchplus.py -u "http://www.example.com/" -d yes
 
 该模块会自动从 resources/bypass403_url.txt 文件中读取目标域名，并进行子域名扫描。扫描结果将显示发现的子域名及其相关信息。
 
+### SSRF 深度探测
+
+自动化 SSRF 深度探测功能，用于检测服务端请求伪造漏洞：
+
+* 检测所有可能的 URL 参数（包括隐藏字段）
+* 对参数注入内部网探测 payload
+* 分析响应时间、错误差异、DNS 出站等间接特征
+
+该功能已集成到 Packer-Fuzzer 模块中，会在漏洞检测阶段自动运行。
+
+### 动态API枚举（基于行为推断）
+
+基于行为推断的动态API枚举功能，替代传统的字典扫描方式：
+
+* 根据前端 JS、请求链路、按钮事件推测后端 API 结构
+* 通过 BFS 推导出隐藏 API
+* 提高API发现的准确性和覆盖率
+
+该功能会自动分析目标网站的JavaScript代码、请求模式和DOM事件，通过行为推断生成候选API路径，然后进行验证。
+
 ## API 接口扫描指南
 
 现代 Web 应用程序通常使用前后端分离架构，API 接口扫描已经成为渗透测试的重要环节。
@@ -213,8 +236,11 @@ python dirsearchplus.py -u https://target.com/api/ \
 
 ### 最新更新
 
-- 集成 SubFinder 子域名爆破模块，用于发现目标的子域名信息
-- 添加 `-d yes` 参数启用子域名扫描功能
+- 集成参数污染检测模块（HPP/HFP），用于检测URL参数重复key、JSON重复字段、表单key重复、数组展开解析差异及Spring MVC参数绑定漏洞等场景
+- 集成SubFinder子域名扫描模块，用于发现目标的子域名信息
+- 添加`-d yes`参数启用子域名扫描功能
+- 集成SSRF深度探测功能，自动检测服务端请求伪造漏洞
+- 集成动态API枚举功能，基于行为推断发现隐藏API
 - 优化各模块间的数据传递和协调工作
 
 ### 2023.5.11 优化更新
@@ -246,7 +272,16 @@ python dirsearchplus.py -u https://target.com/api/ \
 
 # 更新日志 (Change Log)
 
-## [0.1.4] - 最新更新
+## [0.1.5] - 最新更新
+### 新增功能
+- 集成参数污染检测模块（HPP/HFP），用于检测URL参数重复key、JSON重复字段、表单key重复、数组展开解析差异及Spring MVC参数绑定漏洞等场景
+- 集成SubFinder子域名扫描模块，用于发现目标的子域名信息
+- 添加`-d yes`参数启用子域名扫描功能
+- 集成SSRF深度探测功能，自动检测服务端请求伪造漏洞
+- 集成动态API枚举功能，基于行为推断发现隐藏API
+- 优化各模块间的数据传递和协调工作
+
+## [0.1.4] - by ZapcoMan
 ### 新增功能
 - 集成SubFinder子域名扫描模块，用于发现目标的子域名信息
 - 添加`-d yes`参数启用子域名扫描功能
@@ -280,13 +315,18 @@ python dirsearchplus.py -u https://target.com/api/ \
 ### 最近提交记录
 根据git历史记录，最近的主要更新包括：
 
-1. **feat(SubFinder)**: 集成子域名扫描功能
+1. **feat(ParameterPollution)**: 集成参数污染检测功能
+   - 添加ParameterPollutionDetector模块，用于HTTP参数污染检测
+   - 实现URL参数重复key、JSON重复字段、表单key重复、数组展开解析差异及Spring MVC参数绑定漏洞检测
+   - 集成到Packer-Fuzzer扫描流程中，自动检测参数处理差异引起的安全问题
+
+2. **feat(SubFinder)**: 集成子域名扫描功能
    - 添加SubFinder模块，用于子域名爆破扫描
    - 集成subfinder-x.exe工具，支持HTTP扫描和指纹识别
    - 优化文件路径处理，确保在不同环境下都能正确运行
    - 统一控制台输出格式，增强可读性与调试便利性
 
-2. **feat(Packer-Fuzzer)**: 集成自定义日志系统并优化错误处理
+3. **feat(Packer-Fuzzer)**: 集成自定义日志系统并优化错误处理
    - 在多个模块中引入并使用Packer-Fuzzer自带的CreatLog日志系统
    - 为HTML检查过程添加异常捕获和错误日志记录
    - 统一控制台输出格式，增强可读性与调试便利性
@@ -294,14 +334,14 @@ python dirsearchplus.py -u https://target.com/api/ \
    - 优化代理测试模块的异常处理逻辑
    - 规范化代码注释与日志输出内容的表述方式
 
-3. **feat(cli)**: 添加全模块启动选项
+4. **feat(cli)**: 添加全模块启动选项
    - 添加`-a`或`--all`参数，可一键启用所有功能模块(bypass, jsfind, zwsb, packer-fuzzer, swagger, subfinder)
 
-4. **feat(core)**: 增强终端输出功能并优化日志显示
+5. **feat(core)**: 增强终端输出功能并优化日志显示
 
-5. **feat(dirsearchplus)**: 优化JsFind和Packer-Fuzzer功能并改进输出格式
+6. **feat(dirsearchplus)**: 优化JsFind和Packer-Fuzzer功能并改进输出格式
 
-6. **feat(ehole)**: 更新指纹识别规则并优化扫描输出格式
+7. **feat(ehole)**: 更新指纹识别规则并优化扫描输出格式
 
 ### 2023.5.11
 - 优化原版403bypasser，支持单独对某一指定路径进行403绕过
@@ -329,6 +369,28 @@ python dirsearchplus.py -u https://target.com/api/ \
 
 ### 子域名扫描 (-d yes)
 使用SubFinder进行子域名爆破扫描，发现目标相关的子域名。
+
+### 参数污染检测 
+自动检测HTTP参数污染漏洞，包括：
+- URL参数重复key行为差异
+- JSON重复字段行为差异
+- 表单key重复行为差异
+- 数组展开解析差异
+- Spring MVC参数绑定漏洞
+
+输出示例：同样 `/api/user?id=1&id=2`，不同框架差异巨大，可触发越权。
+
+### SSRF深度探测
+自动化SSRF深度探测功能，用于检测服务端请求伪造漏洞：
+* 检测所有可能的URL参数（包括隐藏字段）
+* 对参数注入内部网探测payload
+* 分析响应时间、错误差异、DNS出站等间接特征
+
+### 动态API枚举（基于行为推断）
+基于行为推断的动态API枚举功能，替代传统的字典扫描方式：
+* 根据前端 JS、请求链路、按钮事件推测后端 API 结构
+* 通过 BFS 推导出隐藏 API
+* 提高API发现的准确性和覆盖率
 
 ### 全模块启动 (-a)
 使用单一参数启用所有上述功能模块。
