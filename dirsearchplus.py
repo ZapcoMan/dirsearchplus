@@ -481,7 +481,7 @@ def packer_fuzzer():
                 print(set_color(message, fore="blue"), end='')
                 # print(Fore.GREEN + "" + Style.RESET_ALL)
                 result = subprocess.run([
-                    venv_python, 'PackerFuzzer.py', '-u', url
+                    venv_python, 'PackerFuzzer.py', '-u', url,'-t','adv'
                 ], cwd=packer_fuzzer_dir,  # 使用完整的 Packer-Fuzzer 目录路径
                    capture_output=True, text=True, env=env,
                    errors='replace', encoding='utf-8')  # 添加 encoding='utf-8' 参数
