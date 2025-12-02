@@ -1,6 +1,6 @@
 # dirsearchPlus
 
-dirsearchPlus 是一个增强版的 Web 路径扫描工具，在原版 dirsearch 基础上集成了多个安全测试模块，包括 403 绕过、JS 信息收集、指纹识别、前端打包器检测、子域名爆破等功能。
+dirsearchPlus 是一个增强版的 Web 路径扫描工具，在原版 [dirsearch](https://github.com/maurosoria/dirsearch) 基础上集成了多个安全测试模块，包括 403 绕过、JS 信息收集、指纹识别、前端打包器检测、子域名爆破等功能。
 
 ## 功能特性
 
