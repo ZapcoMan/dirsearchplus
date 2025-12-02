@@ -16,6 +16,9 @@ from lib.Recoverspilt import RecoverSpilt
 from lib.CreateReport import CreateReport
 from lib.getApiResponse import ApiResponse
 from lib.LoadExtensions import loadExtensions
+from lib.BehavioralDiffEngine import BehavioralDiffEngine
+from lib.ParameterPollutionDetector import ParameterPollutionDetector
+from lib.BehavioralApiDiscovery import BehavioralApiDiscovery
 from lib.reports.CreatWord import Docx_replace
 from lib.common.CreatLog import creatLog,log_name,logs
 
@@ -74,6 +77,90 @@ class Project():
             creatLog().get_logger().info(Utils().tellTime() + Utils().getMyWord("{fuzzer_param}"))
             FuzzerParam(projectTag).FuzzerCollect()
         creatLog().get_logger().info(Utils().tellTime() + Utils().getMyWord("{response_end}"))
+        # 运行行为差异分析
+        creatLog().get_logger().info(Utils().tellTime() + "[*] 开始行为差异分析...")
+        try:
+            bde = BehavioralDiffEngine(self.url, options=self.options)
+            # 对一些关键路径进行分析
+            key_paths = [
+                "/api", "/admin", "/login", "/register", "/upload", 
+                "/user", "/users", "/profile", "/settings", "/dashboard",
+                "/config", "/admin/config", "/admin/settings", "/admin/users",
+                "/api/v1", "/api/v2", "/v1/api", "/v2/api", 
+                "/auth", "/authentication", "/oauth", "/sso",
+                "/backup", "/backups", "/debug", "/logs", 
+                "/test", "/testing", "/dev", "/development"
+            ]
+            for path in key_paths:
+                try:
+                    result = bde.send_requests_and_analyze(path)
+                    if result['differences'] or result['potential_issues']:
+                        creatLog().get_logger().info(f"[!] 在路径 {path} 发现行为差异")
+                        for diff in result['differences']:
+                            creatLog().get_logger().info(f"  [-] 差异: {diff['description']}")
+                        for issue in result['potential_issues']:
+                            creatLog().get_logger().info(f"  [-] 潜在问题 ({issue['severity']}): {issue['description']}")
+                except Exception as e:
+                    creatLog().get_logger().warning(f"[!] 行为差异分析在路径 {path} 出错: {str(e)}")
+        except Exception as e:
+            creatLog().get_logger().warning(f"[!] 行为差异分析模块初始化失败: {str(e)}")
+            
+        # 运行参数污染检测
+        creatLog().get_logger().info(Utils().tellTime() + "[*] 开始参数污染检测...")
+        try:
+            ppd = ParameterPollutionDetector(self.url, options=self.options)
+            # 对一些关键路径进行参数污染检测
+            key_paths = [
+                "/api", "/login", "/user", "/profile", "/admin",
+                "/api/v1", "/api/v2", "/v1/api", "/v2/api"
+            ]
+            test_params = {
+                "id": "1",
+                "user": "test",
+                "action": "view"
+            }
+            
+            for path in key_paths:
+                try:
+                    result = ppd.detect_parameter_pollution(path, test_params)
+                    if result['vulnerabilities']:
+                        creatLog().get_logger().info(f"[!] 在路径 {path} 发现参数污染漏洞")
+                        report = ppd.format_vulnerability_report(result)
+                        creatLog().get_logger().info(f"  [-] 检测报告:\n{report}")
+                except Exception as e:
+                    creatLog().get_logger().warning(f"[!] 参数污染检测在路径 {path} 出错: {str(e)}")
+        except Exception as e:
+            creatLog().get_logger().warning(f"[!] 参数污染检测模块初始化失败: {str(e)}")
+        
+        # 运行行为API发现
+        creatLog().get_logger().info(Utils().tellTime() + "[*] 开始行为API发现...")
+        try:
+            # 获取JS文件内容
+            js_contents = []
+            db_paths = DatabaseType(projectTag).allPathFromDB()
+            for path_info in db_paths:
+                if path_info[2] and path_info[2].endswith('.js'):
+                    js_contents.append(path_info[2])
+            
+            # 初始化行为API发现模块
+            bad = BehavioralApiDiscovery(projectTag, options=self.options)
+            discovery_results = bad.discover_hidden_apis(
+                js_contents=js_contents,
+                request_data=[],  # 在实际应用中这里会填入真实的请求数据
+                dom_contents=[]   # 在实际应用中这里会填入真实的DOM内容
+            )
+            
+            # 记录发现的候选API
+            if discovery_results['candidates']:
+                creatLog().get_logger().info(f"[!] 发现 {len(discovery_results['candidates'])} 个潜在API路径")
+                for candidate in discovery_results['candidates'][:10]:  # 只显示前10个
+                    creatLog().get_logger().info(f"  [-] 候选路径: {candidate}")
+                if len(discovery_results['candidates']) > 10:
+                    creatLog().get_logger().info(f"  [-] ... 还有 {len(discovery_results['candidates']) - 10} 个路径")
+            
+        except Exception as e:
+            creatLog().get_logger().warning(f"[!] 行为API发现模块执行失败: {str(e)}")
+        
         vulnTest(projectTag,self.options).testStart(self.url)
         if self.options.type == "adv":
             vulnTest(projectTag,self.options).advtestStart(self.options)

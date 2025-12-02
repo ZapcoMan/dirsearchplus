@@ -13,6 +13,7 @@ from .common.CreatLog import creatLog
 from .vuln.UploadTest import UploadTest
 from .vuln.UnauthTest import UnAuthTest
 from .vuln.PasswordTest import PasswordTest
+from .vuln.SSRFTest import SSRFTest
 
 
 class vulnTest():
@@ -58,6 +59,17 @@ class vulnTest():
             if cors.flag == 1:
                 DatabaseType(self.projectTag).insertCorsInfoIntoDB(cors.header, cors.res)
             self.log.debug("CorsTest模块正常")
+        except Exception as e:
+            self.log.error("[Err] %s" % e)
+
+        # 执行SSRF漏洞测试
+        self.log.info(Utils().tellTime() + "[*] 开始SSRF漏洞检测...")
+        try:
+            ssrf_test = SSRFTest(self.projectTag, self.options)
+            ssrf_result = ssrf_test.test_ssrf_vulnerability(url)
+            if ssrf_result['vulnerable']:
+                self.log.warning("[SSRF] 检测到潜在的SSRF漏洞")
+            self.log.debug("SSRFTest模块正常")
         except Exception as e:
             self.log.error("[Err] %s" % e)
 
