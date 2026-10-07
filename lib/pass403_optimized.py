@@ -21,6 +21,7 @@ init()
 # 导入dirsearch的日志模块
 from lib.view.terminal import output
 from lib.view.colors import set_color
+from lib.core import settings
 
 class OptimizedArguments():
     """
@@ -293,7 +294,7 @@ class OptimizedQuery():
             response = self.session.request(
                 method, url,
                 timeout=self.timeout,
-                verify=False,
+                verify=settings.VERIFY_TLS,
                 **kwargs
             )
             return response

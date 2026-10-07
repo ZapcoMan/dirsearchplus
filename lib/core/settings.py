@@ -8,7 +8,7 @@ from lib.utils.file import FileUtils
 VERSION = "1.5.11 "
 author = "ZapcoMan"
 # 启动时显示的横幅信息（ASCII艺术字）
-BANNER = f"""
+BANNER = rf"""
    _      __    __                     __            ___     ____                 __   ___  __
  | | /| / /__ / /______  __ _  ___   / /____    ___/ (_)___/ __/__ ___ _________/ /  / _ \/ /_ _____  v{VERSION}
  | |/ |/ / -_) / __/ _ \/  ' \/ -_) / __/ _ \  / _  / / __/\ \/ -_) _ `/ __/ __/ _ \/ ___/ / // (_-<
@@ -38,6 +38,10 @@ IS_WINDOWS = sys.platform in ("win32", "msys")
 
 # 默认编码方式
 DEFAULT_ENCODING = "utf-8"
+
+# TLS 证书校验开关：默认关闭，以兼容自签名/内网目标（保持既有行为）；
+# 可通过 --secure 或环境变量 DIRSEARCHPLUS_VERIFY_TLS=1 开启校验
+VERIFY_TLS = os.environ.get("DIRSEARCHPLUS_VERIFY_TLS") == "1"
 
 # 操作系统换行符
 NEW_LINE = os.linesep

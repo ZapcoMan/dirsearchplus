@@ -37,3 +37,17 @@ def enable_logging():
     # 将处理器添加到日志记录器中
     logger.addHandler(handler)
 
+
+def enable_console_logging(level=logging.DEBUG):
+    """
+    将日志同时输出到控制台（供 --debug 使用）
+
+    不依赖日志文件配置，直接在 stderr 输出，便于排查问题。
+    """
+    logger.disabled = False
+    formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
+    handler = logging.StreamHandler()
+    handler.setLevel(level)
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
