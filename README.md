@@ -164,6 +164,14 @@ python dirsearchplus.py -u "https://www.example.com/" --clash \
 $env:DIRSEARCHPLUS_CLASH_SECRET="你的密钥"; python dirsearchplus.py -u "https://www.example.com/" --clash
 ```
 
+### 💡 运行提示
+
+- **控制器地址可省略协议头**：`--clash-api "127.0.0.1:9090"` 会自动补全为 `http://127.0.0.1:9090`。
+- **与其他代理参数互斥**：Clash 模式会接管扫描代理，若同时设置了 `--proxy/--proxy-file/--tor`，启动时会告警并**以 Clash 本地端口为准**。
+- **查看每次切换详情**：加 `--debug`，后台线程每次轮换节点都会输出到控制台/日志。
+- **启动即校验**：连接失败/超时/密钥错误(401、403)/无可用 Selector 策略组/节点不足 都会给出对应中文提示并**自动降级为普通扫描**；扫描结束会打印本次共成功/失败切换次数。
+- **secret 不会回显**：启动提示仅显示“已提供/未提供”，不会打印密钥明文。
+
 ---
 
 ### 📦 依赖说明
@@ -209,6 +217,7 @@ dirsearchplus/
 │   ├── README.md / modules.md / api-scanning.md / changelog.md
 ├── script/                     # 辅助脚本
 │   ├── single_403pass.py       # 单路径 403 绕过
+│   ├── clash_proxy_rotator.py  # Clash 节点自动轮转（Clash 模式依赖库）
 │   └── swagger.py              # Swagger 扫描
 ├── tests/                      # 单元测试（utils / parse / connection / reports）
 └── lib/                        # 核心库
