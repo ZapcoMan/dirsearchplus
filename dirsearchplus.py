@@ -14,11 +14,15 @@ import queue
 
 import sys,os
 
-from pkg_resources import DistributionNotFound, VersionConflict
 
 from lib.core.data import options
 from lib.core.exceptions import FailedDependenciesInstallation
-from lib.core.installation import check_dependencies, install_dependencies
+from lib.core.installation import (
+    check_dependencies,
+    install_dependencies,
+    DistributionNotFound,
+    VersionConflict,
+)
 from lib.core.settings import OPTIONS_FILE
 from lib.parse.config import ConfigParser
 from lib.view.colors import set_color

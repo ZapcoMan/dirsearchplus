@@ -565,7 +565,8 @@ class OptimizedProgram():
         current_time = time.strftime("%H:%M:%S")
         message = f"[{current_time}] 处理完成! 总耗时: {end_time - start_time:.2f} 秒"
         output.new_line(set_color(message, fore="green"))
-        
-        current_time = time.strftime("%H:%M:%S")
-        message = f"[{current_time}] 平均每个任务耗时: {(end_time - start_time) / total:.2f} 秒"
-        output.new_line(set_color(message, fore="green"))
+
+        if total > 0:
+            current_time = time.strftime("%H:%M:%S")
+            message = f"[{current_time}] 平均每个任务耗时: {(end_time - start_time) / total:.2f} 秒"
+            output.new_line(set_color(message, fore="green"))

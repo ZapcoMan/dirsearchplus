@@ -2,7 +2,6 @@ import os
 import re
 import tldextract
 from colorama import init, Fore, Style
-re_lists=[]
 
 init()
 
@@ -21,6 +20,8 @@ def pass403_qc():
     返回值: 无
     """
     urls=[]
+    # 每次调用重置，避免模块级全局在多次扫描间累积导致去重错误
+    re_lists=[]
     try:
         print(Fore.GREEN + Style.BRIGHT +'\nRemove invalid results with the same page length'+Style.RESET_ALL)
         # 读取主URL文件内容
