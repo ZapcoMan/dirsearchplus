@@ -427,18 +427,20 @@ class Controller:
                 )
 
             output_file = FileUtils.get_abs_path((FileUtils.build_path(directory_path, filename)))
-            try:
-                with open('dir_file_path.txt','w') as f:
-                    f.write(output_file)
-                #print(output_file)
-            except:
-                pass
             if FileUtils.exists(output_file):
                 i = 2
                 while FileUtils.exists(f"{output_file}_{i}"):
                     i += 1
 
                 output_file += f"_{i}"
+
+            # 必须在文件名去重调整之后再记录路径，确保 dir_file_path.txt 指向报告实际保存的位置，
+            # 供后续 swagger/ehole 阶段读取；旧实现在调整前写入，重复运行时路径会指向不存在的基础文件
+            try:
+                with open('dir_file_path.txt', 'w') as f:
+                    f.write(output_file)
+            except Exception:
+                logger.debug("写入 dir_file_path.txt 失败", exc_info=True)
 
             try:
                 FileUtils.create_dir(directory_path)

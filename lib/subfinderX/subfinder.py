@@ -105,40 +105,43 @@ def run_subfinder(domain=None, file=None, deep=5, dict_file="test.txt", fuzz_dat
         print(set_color(f"[{current_time}][+] 注意：子域名扫描可能需要一些时间，请耐心等待... ", "green"))
 
         # 使用Popen代替run以便更好地控制进程
-        process = subprocess.Popen(cmd, cwd=work_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
-                                   encoding='utf-8')
+        # 将 stderr 合并到 stdout，只保留单一输出流，配合下面的逐行读取彻底避免管道死锁
+        process = subprocess.Popen(cmd, cwd=work_dir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                   text=True, encoding='utf-8', errors='replace')
 
         # 定时提示机制
         start_time = time.time()
         check_interval = 300  # 每5分钟检查一次
         last_check = start_time
+        out_lines = []
 
-        while process.poll() is None:  # 进程仍在运行
-            current_time = time.time()
-            if current_time - last_check >= check_interval:
-                elapsed_minutes = int((current_time - start_time) / 60)
+        # 逐行读取 stdout：既持续消费管道(防止子进程写满缓冲区而被阻塞造成死锁)，
+        # 又能在读取间隙定时打印进度提示。readline 返回空串表示 EOF(子进程已退出)
+        while True:
+            line = process.stdout.readline()
+            if line == "":
+                break
+            if line.strip():
+                out_lines.append(line.rstrip("\n"))
+            now = time.time()
+            if now - last_check >= check_interval:
+                elapsed_minutes = int((now - start_time) / 60)
                 print(set_color(f"[{time.strftime('%H:%M:%S')}][+] 扫描已持续 {elapsed_minutes} 分钟，请耐心等待...", "green"))
-                last_check = current_time
-            time.sleep(10)  # 每10秒检查一次进程状态
+                last_check = now
 
-        # 获取最终结果
-        stdout, stderr = process.communicate()
+        process.wait()
         if process.returncode == 0:
             print(set_color(f"[{time.strftime('%H:%M:%S')}][+] 扫描成功完成", "green"))
-            if stdout:
-                # 统一输出格式，使用 dirsearch 的输出风格
-                for line in stdout.strip().split('\n'):
-                    if line.strip():
-                        current_time = time.strftime("%H:%M:%S")
-                        print(set_color(f"[{current_time}]     " + line.strip(), "green"))
+            # 统一输出格式，使用 dirsearch 的输出风格
+            for line in out_lines:
+                current_time = time.strftime("%H:%M:%S")
+                print(set_color(f"[{current_time}]     " + line, "green"))
         else:
             print(set_color(f"[{time.strftime('%H:%M:%S')}][-] 扫描过程中出现错误", "red"))
-            if stderr:
-                # 错误信息也使用统一的日志格式
-                for line in stderr.strip().split('\n'):
-                    if line.strip():
-                        current_time = time.strftime("%H:%M:%S")
-                        print(set_color(f"[{current_time}]     " + line.strip(), "red"))
+            # 错误信息也使用统一的日志格式
+            for line in out_lines:
+                current_time = time.strftime("%H:%M:%S")
+                print(set_color(f"[{current_time}]     " + line, "red"))
             
     except FileNotFoundError:
         current_time = time.strftime("%H:%M:%S")
