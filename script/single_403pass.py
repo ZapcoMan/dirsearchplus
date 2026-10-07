@@ -1,5 +1,6 @@
 from lib.pass403 import Arguments,Program
 from lib.qc import pass403_qc
+from lib.core.logger import logger
 import argparse
 
 
@@ -22,8 +23,9 @@ def bypass(url,path):
         argument = Arguments(url, None, path, None)
         program = Program(argument.return_urls(), argument.return_dirs())
         program.initialise()
-    except:
-        pass
+    except Exception as e:
+        # 不静默吞异常，否则如 pass403 头部绕过一类的缺陷将无任何痕迹
+        logger.debug(f"single_403pass bypass 执行失败 url={url} path={path}: {e}", exc_info=True)
 
 
 

@@ -164,20 +164,27 @@ def run_bypass403():
                         js_urls = []
                         js_paths = []
 
+                        from urllib.parse import urlparse
                         for ff in jsf:
-                            ff = ff.replace('\n', '').replace('\r', '')
-                            num_slashes = ff.count('/')
-                            if num_slashes == 2:
-                                ff = ff + '/'
-                            split_url = ff.split("/")
-                            js_url = "/".join(split_url[:3])
-                            js_path = split_url[3]
-                            if js_path == '':
-                                js_path = '/'
+                            ff = ff.replace('\n', '').replace('\r', '').strip()
+                            if not ff:
+                                continue
+                            # jsfind403list.txt 每行是完整URL（如 https://host/admin/secret），
+                            # 旧代码用 split('/') 取 split[3] 作为路径，既丢失前导 '/' 又截断多级路径，
+                            # 导致 url+path 拼成 https://hostadmin 这类畸形地址使绕过全部失败；
+                            # 改用 urlparse 正确拆出 host 与带前导斜杠的完整 path
+                            parsed = urlparse(ff)
+                            if not parsed.netloc:
+                                continue
+                            js_url = f"{parsed.scheme}://{parsed.netloc}"
+                            js_path = parsed.path or '/'
+                            if len(js_path) > 1:
+                                js_path = js_path.rstrip('/') or '/'
 
                             if js_url not in js_urls:
                                 js_urls.append(js_url)
-                            js_paths.append(js_path)
+                            if js_path not in js_paths:
+                                js_paths.append(js_path)
 
                         # 使用优化模式处理JS发现的路径
                         if js_urls and js_paths:

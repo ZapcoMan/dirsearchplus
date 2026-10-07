@@ -538,6 +538,9 @@ def giveresult(urls, domian):
         parsed_url = urlparse(domian)
         domain1 = parsed_url.netloc
         domain1 = domain1.replace('.', '_').replace(':', '_')
+        # 确保 reports 目录存在：Controller 仅在 autosave 开启时才创建该目录，
+        # 若该阶段被跳过或关闭 autosave，直接写入会抛 FileNotFoundError 使 jsfind 阶段崩溃
+        os.makedirs("reports", exist_ok=True)
         with open("reports/" + domain1 + '.csv', 'w', newline='', encoding='UTF-8') as csvf:
             fieldnames = ['URL', 'Code', 'title']
             writer = csv.DictWriter(csvf, fieldnames=fieldnames)
@@ -601,6 +604,8 @@ def save_sensitive_info(sensitive_data, domain):
         domain_name = parsed_url.netloc
         safe_domain_name = domain_name.replace('.', '_').replace(':', '_')
 
+        # 确保 reports 目录存在，避免因目录缺失导致保存失败
+        os.makedirs("reports", exist_ok=True)
         # 保存敏感信息到文件
         with open(f"reports/{safe_domain_name}_sensitive_info.txt", 'w', encoding='utf-8') as f:
             f.write(f"敏感信息检测报告\n")

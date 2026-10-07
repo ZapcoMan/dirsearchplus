@@ -167,6 +167,26 @@ class PathRepository():
         """
         构建伪造来源IP的HTTP头部信息以及URL重写的头部信息。
         """
+        # 定义头部重写字段
+        headers_overwrite = ["X-Original-URL", "X-Rewrite-URL"]
+        # 定义IP伪造相关头部字段
+        headers = ["X-Custom-IP-Authorization", "X-Forwarded-For",
+                  "X-Forward-For", "X-Remote-IP", "X-Originating-IP",
+                  "X-Remote-Addr", "X-Client-IP", "X-Real-IP"]
+        # 定义IP伪造值
+        values = ["localhost", "localhost:80", "localhost:443",
+                 "127.0.0.1", "127.0.0.1:80", "127.0.0.1:443",
+                 "2130706433", "0x7F000001", "0177.0000.0000.0001",
+                 "0", "127.1", "10.0.0.0", "10.0.0.1", "172.16.0.0",
+                 "172.16.0.1", "192.168.1.0", "192.168.1.1"]
+
+        # 生成IP伪造头部组合
+        for header in headers:
+            for value in values:
+                self.newHeaders.append({header: value})
+        # 生成路径重写头部组合
+        for element in headers_overwrite:
+            self.rewriteHeaders.append({element: self.path})
 
 
 class Query():
@@ -447,12 +467,10 @@ class Program():
         for u in self.urllist:
             session = self.sessions[u]
             for d in self.dirlist:
-                if d != "/":
-                    dir_objname = d.lstrip("/")
-                else:
-                    dir_objname = "_rootPath"
-                locals()[dir_objname] = PathRepository(d)
-                domain_name = tldextract.extract(u).domain
-                locals()[domain_name] = Query(u, d, locals()[dir_objname], session=session)
-                locals()[domain_name].manipulateRequest()
+                # 原代码使用 locals()[...] = ... 动态绑定局部变量，
+                # 但 CPython 对 locals() 字典的写入不会绑定为真实局部变量，读取不可靠；
+                # 改用普通局部变量，行为确定且等价
+                dir_obj = PathRepository(d)
+                query = Query(u, d, dir_obj, session=session)
+                query.manipulateRequest()
 
