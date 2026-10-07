@@ -66,7 +66,7 @@ def start_ehole():
                     for dd in d1:
                         dd = dd.replace('\n', '').replace('\r', '')
                         if "404   " not in dd and ' 0B ' not in dd:
-                            reg = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+                            reg = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
                             url = re.findall(reg, dd)
                             try:
                                 with open(ehole_file, 'a+') as ehole:
@@ -133,21 +133,21 @@ def start_ehole():
             ehole_executable = os.path.join(path_get, "lib", "ehole", "ehole")
             os.chmod(ehole_executable, 0o755)  # 使用数字权限表示法
             # 执行ehole扫描
-            subprocess.run([ehole_executable, "finger", "-l", ehole_file])
+            subprocess.run([ehole_executable, "finger", "-l", ehole_file], timeout=600)
         elif win_mac == "win32":  # Windows
             current_time = time.strftime("%H:%M:%S")
             message = f"[{current_time}]正在扫描指纹: {domain_url}"
             output.new_line(set_color(message, fore="cyan"))
             ehole_executable = os.path.join(path_get, "lib", "ehole", "ehole.exe")
             json_output = os.path.join(reports_dir, f"{domain1}.json")
-            subprocess.run([ehole_executable, "finger", "-l", ehole_file, "-o", json_output])
+            subprocess.run([ehole_executable, "finger", "-l", ehole_file, "-o", json_output], timeout=600)
         else:  # Linux或其他系统
             current_time = time.strftime("%H:%M:%S")
             message = f"[{current_time}]正在扫描指纹: {domain_url}"
             output.new_line(set_color(message, fore="cyan"))
             ehole_executable = os.path.join(path_get, "lib", "ehole", "ehole")
             os.chmod(ehole_executable, 0o755)  # 使用数字权限表示法
-            subprocess.run([ehole_executable, "finger", "-l", ehole_file])
+            subprocess.run([ehole_executable, "finger", "-l", ehole_file], timeout=600)
 
         current_time = time.strftime("%H:%M:%S")
         message = f"[{current_time}]指纹扫描完成！"
@@ -173,13 +173,13 @@ def start_ehole():
                 if win_mac == "darwin":
                     ehole_executable = os.path.join(path_get, "lib", "ehole", "ehole")
                     os.chmod(ehole_executable, 0o755)  # 使用数字权限表示法
-                    subprocess.run([ehole_executable, "finger", "-l", ehole_file])
+                    subprocess.run([ehole_executable, "finger", "-l", ehole_file], timeout=600)
                 elif win_mac == "win32":
                     ehole_executable = os.path.join(path_get, "lib", "ehole", "ehole.exe")
-                    subprocess.run([ehole_executable, "finger", "-l", ehole_file])
+                    subprocess.run([ehole_executable, "finger", "-l", ehole_file], timeout=600)
                 else:
                     ehole_executable = os.path.join(path_get, "lib", "ehole", "ehole")
                     os.chmod(ehole_executable, 0o755)  # 使用数字权限表示法
-                    subprocess.run([ehole_executable, "finger", "-l", ehole_file])
+                    subprocess.run([ehole_executable, "finger", "-l", ehole_file], timeout=600)
         except Exception as inner_e:
             output.error(f"尝试只扫描根目录指纹时也发生错误: {str(inner_e)}")

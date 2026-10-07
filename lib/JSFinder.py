@@ -11,6 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 from lib.view.terminal import output
 from lib.view.colors import set_color
 from lib.core.logger import logger
+from lib.core import settings
 
 # 从单独的文件导入敏感信息正则表达式模式
 from lib.core.sensitive_patterns import SENSITIVE_PATTERNS
@@ -158,7 +159,7 @@ def Extract_html(URL):
         }
     # "Cookie": args.cookie}
     try:
-        raw = requests.get(URL, headers=header, timeout=3, verify=False)
+        raw = requests.get(URL, headers=header, timeout=3, verify=settings.VERIFY_TLS)
         raw = raw.content.decode("utf-8", "ignore")
         return raw
     except Exception as e:
@@ -484,7 +485,7 @@ def giveresult(urls, domian):
         try:
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36'}
-            res = requests.get(url, headers=headers, verify=False, timeout=2)
+            res = requests.get(url, headers=headers, verify=settings.VERIFY_TLS, timeout=2)
             status_code = res.status_code
             soup = BeautifulSoup(res.content, 'html.parser')
             title_tag = soup.find('title')
@@ -581,31 +582,6 @@ def giveresult(urls, domian):
         current_time = time.strftime("%H:%M:%S")
         message = f"[{current_time}]  检测敏感信息时出错: {str(e)}"
         output.new_line(set_color(message, fore="red"))
-
-
-def jsfind():
-    import lib.JSFinder
-    from lib.core.options import parse_options
-    from lib.view.terminal import output
-    from lib.view.colors import set_color
-    import time
-    # current_time = time.strftime("%H:%M:%S")
-    # message = f"[{current_time}] jsfind "
-    # output.new_line(set_color(message, fore="cyan"))
-    if (parse_options()['jsfind']) == None:
-        pass
-    else:
-        jsf="".join(parse_options()['jsfind'])
-        if jsf=='yes':
-            # print(Fore.GREEN + Style.BRIGHT+"开始JsFind！"+Style.RESET_ALL)
-            current_time = time.strftime("%H:%M:%S")
-            message = f"[{current_time}] 开始JsFind！"
-            output.new_line(set_color(message, fore="green", style="bright"))
-            url="".join(parse_options()['urls'])
-            urls = lib.JSFinder.find_by_url(url)
-            lib.JSFinder.giveresult(urls, url)
-        else:
-            pass
 
 
 # 添加敏感信息保存功能
