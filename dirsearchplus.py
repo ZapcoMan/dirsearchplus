@@ -11,12 +11,15 @@ from lib.qc import pass403_qc
 
 import queue
 
+# 403 路径收集队列：定义为模块级单例，避免依赖 __main__ 局部变量造成的隐式耦合
+q = queue.Queue()
 
 import sys,os
 
 
 from lib.core.data import options
 from lib.core.exceptions import FailedDependenciesInstallation
+from lib.core.logger import logger
 from lib.core.installation import (
     check_dependencies,
     install_dependencies,
@@ -29,6 +32,11 @@ from lib.view.colors import set_color
 from lib.view.terminal import output
 
 init()
+
+# Packer-Fuzzer 仓库地址与可选的固定引用(需为标签/分支名)，通过环境变量 PACKER_FUZZER_REF 指定，
+# 便于在受控环境中锁定来源、降低运行时动态克隆带来的供应链风险
+PACKER_FUZZER_REPO = 'https://github.com/rtcatc/Packer-Fuzzer.git'
+PACKER_FUZZER_REF = os.environ.get('PACKER_FUZZER_REF')
 
 if sys.version_info < (3, 7):
     sys.stdout.write("抱歉，dirsearch需要Python 3.7或更高版本\n")
@@ -86,14 +94,15 @@ def bypass():
         program.initialise()
     except Exception as e:
         print(f"bypass处理出错: {e}")
+        logger.debug(f"批量403bypass处理失败，回退为逐个处理: {e}")
         # 如果处理失败，尝试逐个处理
         for path_403 in paths_to_process:
             try:
                 argument = Arguments(bypass403_url, None, path_403, None)
                 program = Program(argument.return_urls(), argument.return_dirs())
                 program.initialise()
-            except:
-                pass
+            except Exception as e:
+                logger.debug(f"单个403路径 {path_403} bypass失败: {e}")
 
 
 def run_bypass403():
@@ -192,7 +201,8 @@ def jsfind():
             current_time = time.strftime("%H:%M:%S")
             message = f"[{current_time}] 开始JsFind！"
             output.new_line(set_color(message, fore="green", style="bright"))
-            url="".join(parse_options()['urls'])
+            _js_urls = parse_options()['urls']
+            url = _js_urls[0] if _js_urls else ""
             urls = lib.JSFinder.find_by_url(url)
             lib.JSFinder.giveresult(urls, url)
         else:
@@ -294,11 +304,11 @@ def swagger_scan():
                                         status_code = int(parts[0])
                                         # 只包含200状态码的路径
                                         if status_code != 200:
-                                            print(f"跳过非200状态码路径: {line.strip()}")
+                                            logger.debug(f"跳过非200状态码路径: {line.strip()}")
                                             continue
                                     except ValueError:
                                         # 如果第一部分不是状态码，则跳过此行
-                                        print(f"无法从行解析状态码: {line.strip()}")
+                                        logger.debug(f"无法从行解析状态码: {line.strip()}")
                                         continue
 
                                 # 完整URL应该是第三个元素或最后一个元素
@@ -321,10 +331,10 @@ def swagger_scan():
                                     # 简单情况：直接使用整行作为URL
                                     swagger_paths.append(line.strip())
                             except Exception as e:
-                                print(f"从行提取URL时出错: {line}。错误: {e}")
+                                logger.debug(f"从行提取URL时出错: {line}。错误: {e}")
                                 pass
     except Exception as e:
-        print(f"读取swagger路径时出错: {e}")
+        logger.debug(f"读取swagger路径时出错: {e}")
         pass
 
     # 如果找到了 swagger 路径，调用 swagger.py 进行扫描
@@ -402,16 +412,39 @@ def packer_fuzzer():
                 packer_fuzzer_dir = os.path.join(packer_fuzzer_base_dir, 'Packer-Fuzzer')
 
                 if not os.path.exists(packer_fuzzer_dir):
-                    # print(Fore.YELLOW + "未找到Packer-Fuzzer。正在从GitHub克隆..." + Style.RESET_ALL)
-                    message = f"[{current_time}] 未找到Packer-Fuzzer  -- .... -- 正在从GitHub克隆...！"
+                    is_sha = bool(PACKER_FUZZER_REF) and re.fullmatch(r'[0-9a-fA-F]{7,40}', PACKER_FUZZER_REF)
+                    if PACKER_FUZZER_REF:
+                        message = f"[{current_time}] 未找到Packer-Fuzzer -- 正在从GitHub克隆(锁定引用: {PACKER_FUZZER_REF})...！"
+                    else:
+                        message = f"[{current_time}] 未找到Packer-Fuzzer -- 正在从GitHub克隆(默认分支，建议设置 PACKER_FUZZER_REF 锁定版本)...！"
                     print(set_color(message, fore="blue"), end='')
-                    # 确保 script 目录存在
+                    # 确保 lib 目录存在
                     if not os.path.exists(packer_fuzzer_base_dir):
                         os.makedirs(packer_fuzzer_base_dir)
-                    # 克隆 Packer-Fuzzer 仓库到 script 目录
-                    subprocess.run([
-                        'git', 'clone', 'https://github.com/rtcatc/Packer-Fuzzer.git'
-                    ], cwd=packer_fuzzer_base_dir, check=True)
+                    # 浅克隆 Packer-Fuzzer 仓库到 lib 目录
+                    if is_sha:
+                        # 引用为提交SHA：先克隆默认分支，再 fetch 指定提交并 checkout
+                        subprocess.run(['git', 'clone', '--depth', '1', PACKER_FUZZER_REPO],
+                                       cwd=packer_fuzzer_base_dir, check=True)
+                        subprocess.run(['git', 'fetch', '--depth', '1', 'origin', PACKER_FUZZER_REF],
+                                       cwd=packer_fuzzer_dir, check=True)
+                        subprocess.run(['git', 'checkout', 'FETCH_HEAD'],
+                                       cwd=packer_fuzzer_dir, check=True)
+                    else:
+                        # 引用为标签/分支名(或未指定)：直接 --branch 浅克隆
+                        clone_cmd = ['git', 'clone', '--depth', '1']
+                        if PACKER_FUZZER_REF:
+                            clone_cmd += ['--branch', PACKER_FUZZER_REF]
+                        clone_cmd += [PACKER_FUZZER_REPO]
+                        subprocess.run(clone_cmd, cwd=packer_fuzzer_base_dir, check=True)
+
+                # 完整性校验：确认入口脚本存在，避免执行克隆失败或被篡改的目录
+                entry_script = os.path.join(packer_fuzzer_dir, 'PackerFuzzer.py')
+                if not os.path.isfile(entry_script):
+                    message = f"[{current_time}] Packer-Fuzzer 入口脚本缺失({entry_script})，已中止以避免执行不完整的代码"
+                    print(set_color(message, fore="red"), end='')
+                    logger.error(f"Packer-Fuzzer entry not found: {entry_script}")
+                    return
 
                 # 使用项目根目录下的.venv虚拟环境
                 project_root = os.getcwd()
@@ -430,7 +463,7 @@ def packer_fuzzer():
 
                 # 检查项目虚拟环境是否存在
                 if not os.path.exists(os.path.join(project_root, '.venv')):
-                    message = f"{[current_time]} 项目虚拟环境(.venv)不存在，请先创建项目虚拟环境"
+                    message = f"[{current_time}] 项目虚拟环境(.venv)不存在，请先创建项目虚拟环境"
                     print(set_color(message, fore="blue"), end='')
                     # print(Fore.RED + "" + Style.RESET_ALL)
                     return
@@ -641,5 +674,4 @@ def run():
     swagger_scan()
 
 if __name__ == "__main__":
-    q = queue.Queue()
     run()

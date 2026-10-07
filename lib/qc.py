@@ -3,6 +3,8 @@ import re
 import tldextract
 from colorama import init, Fore, Style
 
+from lib.core.logger import logger
+
 init()
 
 def pass403_qc():
@@ -72,6 +74,6 @@ def pass403_qc():
                         break
             # 删除已处理的域名文件
             os.remove(file_domain + '.txt')
-    except:
-        pass
+    except Exception as e:
+        logger.debug(f"403结果去重处理失败: {e}")
 
