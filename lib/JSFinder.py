@@ -58,11 +58,21 @@ def extract_sensitive_info(js_content):
     ]
 
     for pattern_name, pattern in SENSITIVE_PATTERNS.items():
-        matches = re.findall(pattern, js_content, re.IGNORECASE)
+        matches = list(re.finditer(pattern, js_content, re.IGNORECASE))
         if matches:
             # 过滤可能的误报
             filtered_matches = []
-            for match in matches:
+            for m in matches:
+                groups = m.groups()
+                # 还原与原 re.findall 一致的返回结构：
+                # 无捕获组->整串；单捕获组->该组；多捕获组->元组
+                if not groups:
+                    match = m.group(0)
+                elif len(groups) == 1:
+                    match = groups[0]
+                else:
+                    match = groups
+
                 # 将匹配转换为字符串（有些可能是元组）
                 match_str = match if isinstance(match, str) else ''.join(match)
 
@@ -71,10 +81,10 @@ def extract_sensitive_info(js_content):
                 if whitelist_entry in whitelist:
                     continue  # 在白名单中，跳过
 
-                # 检查匹配项周围是否有测试相关的关键词
-                match_index = js_content.find(match_str)
+                # 使用该匹配在原文中的真实位置获取上下文（find 只会定位首次出现）
+                match_index = m.start()
                 context_start = max(0, match_index - 50)
-                context_end = min(len(js_content), match_index + len(match_str) + 50)
+                context_end = min(len(js_content), m.end() + 50)
                 context = js_content[context_start:context_end].lower()
 
                 # 如果上下文中包含测试关键词，则认为是误报

@@ -55,7 +55,9 @@ def parse_options():
         print("缺少URL目标，请尝试使用 -u <url>")
         #opt.urls="http://www.baidu.com"
         exit(1)
-    bypass403_url="".join(opt.urls)
+    # 下游模块(403绕过/指纹/Packer-Fuzzer/子域名)均按单个URL读取该文件，
+    # 使用首个目标避免多URL被"".join粘连成非法字符串
+    bypass403_url = opt.urls[0] if opt.urls else ""
     with open('resources/bypass403_url.txt','w') as f:
         f.write(bypass403_url)
 

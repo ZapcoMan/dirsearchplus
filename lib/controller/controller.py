@@ -396,7 +396,7 @@ class Controller:
         if options["output_format"] in ("plain", "simple"):
             return "txt"
 
-        return {options["output_format"]}
+        return options["output_format"]
 
     def setup_reports(self):
         """
