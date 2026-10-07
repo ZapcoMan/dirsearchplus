@@ -33,6 +33,7 @@ dirsearchPlus 是一个增强版的 Web 路径扫描工具，在原版 [dirsearc
 - ⚠️ **参数污染检测**：HPP/HFP 行为差异分析
 - 🔥 **SSRF 深度探测** & 🧠 **动态 API 枚举**（基于行为推断）
 - 🚀 **一键启用**：`-a` / `--all` 串联全部模块，单阶段异常不中断流水线
+- 🔀 **Clash 自动切换IP**：扫描中通过 Clash 外部控制器后台轮转节点，自动更换出口 IP
 
 ### 🧱 技术栈
 
@@ -118,6 +119,52 @@ python dirsearchplus.py -u "https://www.example.com/" -a --debug --secure
 # 锁定 Packer-Fuzzer 版本后再启用该模块
 $env:PACKER_FUZZER_REF="v2.0"; python dirsearchplus.py -u "https://www.example.com/" -p yes
 ```
+
+---
+
+## 🔀 Clash 自动切换IP模式
+
+在长时间/大范围扫描时，单一出口 IP 容易被目标限流或封禁。本模式让所有扫描请求走本地
+Clash 代理端口，并由后台线程按间隔自动切换 Clash 节点，从而**在扫描过程中自动更换出口 IP**。
+
+### ⚠️ 前置条件（缺一不可，否则无法换 IP）
+
+启用本模式前，必须在 **Clash（内核）** 中完成以下配置：
+
+1. **开启外部控制器（external-controller）**：Clash 配置需启用外部控制器 RESTful API（默认端口 `9090`）。
+2. **设置好「外部控制器监听地址」**：即 `external-controller` 的监听地址（默认 `http://127.0.0.1:9090`），需与下方 `--clash-api` 一致。
+3. **设置好「外部控制器的 API 密钥（secret）」**：若 Clash 配置了 `secret`，必须提供正确的密钥，否则控制器会返回 401/403。
+4. 此外还需知道 Clash 的**本地混合代理端口（mixed-port）**，扫描请求将通过它出口（默认 `7899`）。
+
+> 程序在启动该模式时会**自动校验**上述控制器地址与密钥：连接失败或密钥错误会给出明确提示，并**自动降级为普通扫描模式**（不影响其余流水线阶段）。
+
+### 🧊 参数
+
+| 参数 | 说明 | 默认值 | 环境变量 / config.ini |
+| --- | --- | --- | --- |
+| `--clash` | 启用 Clash 自动切换IP模式 | 关闭 | `[clash] enable=true` |
+| `--clash-api` | 外部控制器监听地址（external-controller） | `http://127.0.0.1:9090` | `DIRSEARCHPLUS_CLASH_API` / `[clash] api` |
+| `--clash-secret` | 外部控制器 API 密钥（secret） | 空 | `DIRSEARCHPLUS_CLASH_SECRET` / `[clash] secret` |
+| `--clash-port` | 本地混合代理端口（mixed-port） | `7899` | `[clash] port` |
+| `--clash-interval` | 自动切换节点间隔（秒） | `30` | `[clash] interval` |
+
+> 优先级：**命令行参数 > 环境变量 > `config.ini` 的 `[clash]` 段 > 内置默认**。出于安全考虑，建议通过环境变量或 `config.ini` 提供 secret，避免密钥出现在命令行历史中。
+
+### 使用示例
+
+```bash
+# 指定控制器地址与密钥，扫描时每隔 20 秒自动换一个出口 IP
+python dirsearchplus.py -u "https://www.example.com/" --clash \
+  --clash-api "http://127.0.0.1:9090" --clash-secret "你的密钥" \
+  --clash-port 7899 --clash-interval 20
+```
+
+```powershell
+# 推荐：密钥放环境变量，命令行不暴露
+$env:DIRSEARCHPLUS_CLASH_SECRET="你的密钥"; python dirsearchplus.py -u "https://www.example.com/" --clash
+```
+
+---
 
 ### 📦 依赖说明
 

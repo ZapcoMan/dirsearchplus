@@ -679,6 +679,55 @@ def _run_stage(name, func):
     print(set_color(f"[{current_time}] 阶段 {name} 完成，耗时 {elapsed:.1f}s", fore="green"))
 
 
+def _setup_clash_mode():
+    """启用 Clash 自动切换IP模式。
+
+    校验外部控制器前置条件、启动后台节点轮转线程，并把本地混合代理端口注入
+    options["proxies"]（dirsearch 的 Requester 会让每个请求都走该端口，后台线程
+    负责按间隔切换节点，从而实现扫描中自动更换出口 IP）。
+
+    返回已启动的 rotator；未启用或前置校验失败时返回 None（自动降级为普通扫描）。
+    """
+    if not options.get("clash_mode"):
+        return None
+
+    from script.clash_proxy_rotator import ClashProxyRotator, ClashControllerError
+
+    current_time = time.strftime("%H:%M:%S")
+    print(set_color(f"[{current_time}] 已启用 Clash 自动切换IP模式", fore="cyan", style="bright"))
+    print(set_color(
+        f"[{current_time}] 前置要求：Clash 必须已开启外部控制器(external-controller)，"
+        f"并已正确设置『外部控制器监听地址』与『外部控制器 API 密钥(secret)』。",
+        fore="cyan"))
+    print(set_color(
+        f"[{current_time}] 当前配置：控制器={options['clash_api']} | "
+        f"本地代理端口={options['clash_port']} | 切换间隔={options['clash_interval']}s",
+        fore="cyan"))
+
+    rotator = ClashProxyRotator(
+        clash_api=options["clash_api"],
+        clash_secret=options["clash_secret"],
+        clash_proxy_port=options["clash_port"],
+        switch_interval=options["clash_interval"],
+    )
+
+    try:
+        rotator.check_prerequisites()
+    except ClashControllerError as e:
+        print(set_color(f"[{current_time}] Clash 模式启动失败：{e}", fore="red"))
+        print(set_color("已自动降级为普通扫描模式（不使用 Clash 换 IP）。", fore="yellow"))
+        return None
+
+    rotator.start()
+    # 注入本地代理：所有扫描请求经该端口，节点由后台线程轮转
+    options["proxies"] = [rotator.get_proxy_url()]
+    print(set_color(
+        f"[{current_time}] Clash 轮转已运行：可用节点={len(rotator.get_nodes())} | "
+        f"当前节点={rotator.get_current_node()} | 代理={rotator.get_proxy_url()}",
+        fore="green"))
+    return rotator
+
+
 def run():
     """
     主函数，负责执行一系列安全扫描和检测功能
@@ -700,14 +749,23 @@ def run():
     # 更新全局选项配置
     options.update(parse_options())
 
-    # 各阶段独立容错执行
-    _run_stage("目录扫描(Controller)", Controller)
-    _run_stage("JavaScript文件查找和分析", jsfind)
-    _run_stage("403 Forbidden状态码绕过测试", run_bypass403)
-    _run_stage("EHole指纹识别工具", ehole)
-    _run_stage("打包器模糊测试(Packer-Fuzzer)", packer_fuzzer)
-    _run_stage("SubFinder子域名扫描", subfinder_scan)
-    _run_stage("Swagger接口扫描", swagger_scan)
+    # Clash 自动切换IP模式：在扫描前启动后台轮转并注入代理
+    _clash_rotator = _setup_clash_mode()
+
+    try:
+        # 各阶段独立容错执行
+        _run_stage("目录扫描(Controller)", Controller)
+        _run_stage("JavaScript文件查找和分析", jsfind)
+        _run_stage("403 Forbidden状态码绕过测试", run_bypass403)
+        _run_stage("EHole指纹识别工具", ehole)
+        _run_stage("打包器模糊测试(Packer-Fuzzer)", packer_fuzzer)
+        _run_stage("SubFinder子域名扫描", subfinder_scan)
+        _run_stage("Swagger接口扫描", swagger_scan)
+    finally:
+        if _clash_rotator is not None:
+            _clash_rotator.stop()
+            current_time = time.strftime("%H:%M:%S")
+            print(set_color(f"[{current_time}] Clash 自动切换IP模式已停止", fore="cyan"))
 
 if __name__ == "__main__":
     run()
