@@ -38,6 +38,20 @@ init()
 PACKER_FUZZER_REPO = 'https://github.com/rtcatc/Packer-Fuzzer.git'
 PACKER_FUZZER_REF = os.environ.get('PACKER_FUZZER_REF')
 
+# 解析本工具自有的运行开关，并从 argv 中摘除，避免传入 dirsearch 参数解析器时因未知选项报错
+_DEBUG_MODE = ("--debug" in sys.argv) or os.environ.get("DIRSEARCHPLUS_DEBUG") == "1"
+_INSECURE = ("--insecure" in sys.argv) or os.environ.get("DIRSEARCHPLUS_INSECURE") == "1"
+_SECURE = ("--secure" in sys.argv)
+for _flag in ("--debug", "--insecure", "--secure"):
+    while _flag in sys.argv:
+        sys.argv.remove(_flag)
+
+import lib.core.settings as _settings
+if _INSECURE:
+    _settings.VERIFY_TLS = False
+elif _SECURE:
+    _settings.VERIFY_TLS = True
+
 if sys.version_info < (3, 7):
     sys.stdout.write("抱歉，dirsearch需要Python 3.7或更高版本\n")
     sys.exit(1)
@@ -254,7 +268,6 @@ def hhh():
 
 def swagger_scan():
     import lib.core.options
-    from script import swagger
     import argparse
 
     # 只调用一次 parse_options() 并存储结果
@@ -266,6 +279,16 @@ def swagger_scan():
 
     swagger_opt = "".join(parsed_options['swagger'])
     if swagger_opt.lower() != 'yes':
+        return
+
+    # 延迟导入 swagger：仅在实际启用时才需要 selenium/openpyxl 等浏览器依赖，
+    # 缺依赖时优雅降级而非 sys.exit 拖垮整条流水线
+    try:
+        from script import swagger
+    except (ImportError, SystemExit) as e:
+        logger.debug(f"导入 swagger 失败(缺少浏览器依赖): {e}")
+        current_time = time.strftime("%H:%M:%S")
+        print(set_color(f"[{current_time}] Swagger 依赖未安装，跳过扫描。如需启用请执行: pip install -r requirements-browser.txt", fore="yellow"))
         return
 
     # 查找所有可能的 swagger 相关路径
@@ -628,14 +651,38 @@ def subfinder_scan():
         print(set_color(message, fore="red"))
 
 
+def _run_stage(name, func):
+    """执行单个扫描阶段：捕获异常并计时，任一阶段失败不影响后续阶段"""
+    start = time.time()
+    current_time = time.strftime("%H:%M:%S")
+    print(set_color(f"[{current_time}] 开始阶段: {name}", fore="blue"))
+    try:
+        func()
+    except KeyboardInterrupt:
+        raise
+    except (Exception, SystemExit) as e:
+        # 连 SystemExit 一并捕获，避免个别模块内部 sys.exit 中断整条流水线
+        elapsed = time.time() - start
+        current_time = time.strftime("%H:%M:%S")
+        print(set_color(f"[{current_time}] 阶段 {name} 出错(已跳过，耗时 {elapsed:.1f}s): {e}", fore="red"))
+        logger.debug(f"stage '{name}' failed: {e}", exc_info=True)
+        return
+    elapsed = time.time() - start
+    current_time = time.strftime("%H:%M:%S")
+    print(set_color(f"[{current_time}] 阶段 {name} 完成，耗时 {elapsed:.1f}s", fore="green"))
+
+
 def run():
     """
     主函数，负责执行一系列安全扫描和检测功能
 
-    该函数按顺序调用多个安全检测模块，包括漏洞扫描、JS文件分析、
-    403绕过测试、指纹识别、打包器模糊测试和Swagger接口扫描等功能。
+    该函数按顺序调用多个安全检测模块。每个阶段独立容错：
+    单个阶段失败仅跳过该阶段，不会中断整条流水线。
     """
-    current_time = time.strftime("%H:%M:%S")
+    # --debug 启用控制台日志
+    if _DEBUG_MODE:
+        from lib.core.logger import enable_console_logging
+        enable_console_logging()
 
     # 执行基础初始化操作
     hhh()
@@ -646,32 +693,14 @@ def run():
     # 更新全局选项配置
     options.update(parse_options())
 
-    # 初始化并运行主控制器
-    Controller()
-
-    # 执行JavaScript文件查找和分析
-    print(set_color(f"[{current_time}] 执行JavaScript文件查找和分析 ", fore="blue"))
-    jsfind()
-
-    # 运行403 Forbidden状态码绕过测试
-    print(set_color(f"[{current_time}] 运行403 Forbidden状态码绕过测试 ", fore="blue"))
-    run_bypass403()
-
-    # 执行EHole指纹识别工具
-    print(set_color(f"[{current_time}] 执行EHole指纹识别工具 ", fore="blue"))
-    ehole()
-
-    # 运行打包器模糊测试
-    print(set_color(f"[{current_time}] 运行打包器模糊测试 ", fore="blue"))
-    packer_fuzzer()
-
-    # 运行SubFinder子域名扫描
-    print(set_color(f"[{current_time}] SubFinder子域名扫描 ", fore="blue"))
-    subfinder_scan()
-
-    # 执行Swagger接口扫描
-    print(set_color(f"[{current_time}] Swagger接口扫描 ", fore="blue"))
-    swagger_scan()
+    # 各阶段独立容错执行
+    _run_stage("目录扫描(Controller)", Controller)
+    _run_stage("JavaScript文件查找和分析", jsfind)
+    _run_stage("403 Forbidden状态码绕过测试", run_bypass403)
+    _run_stage("EHole指纹识别工具", ehole)
+    _run_stage("打包器模糊测试(Packer-Fuzzer)", packer_fuzzer)
+    _run_stage("SubFinder子域名扫描", subfinder_scan)
+    _run_stage("Swagger接口扫描", swagger_scan)
 
 if __name__ == "__main__":
     run()
