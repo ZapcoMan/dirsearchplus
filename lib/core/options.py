@@ -357,6 +357,23 @@ def parse_config(opt):
     )
     opt.replay_proxy = opt.replay_proxy or config.safe_get("connection", "replay-proxy")
 
+    # Clash 自动切换IP模式：优先级 命令行 > 环境变量 > config.ini([clash]) > 内置默认
+    opt.clash_mode = opt.clash_mode or config.safe_getboolean("clash", "enable")
+    opt.clash_api = (
+        opt.clash_api
+        or os.environ.get("DIRSEARCHPLUS_CLASH_API")
+        or config.safe_get("clash", "api", "http://127.0.0.1:9090")
+    )
+    opt.clash_secret = (
+        opt.clash_secret
+        or os.environ.get("DIRSEARCHPLUS_CLASH_SECRET")
+        or config.safe_get("clash", "secret", "")
+    )
+    opt.clash_port = opt.clash_port or config.safe_getint("clash", "port", 7899)
+    opt.clash_interval = opt.clash_interval or config.safe_getint(
+        "clash", "interval", 30
+    )
+
     # 高级设置
     opt.crawl = opt.crawl or config.safe_getboolean("advanced", "crawl")
 

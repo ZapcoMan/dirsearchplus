@@ -523,6 +523,50 @@ def parse_arguments():
         help="服务器IP地址"
     )
 
+    # === Clash 自动切换IP模式组 ===
+    clash = OptionGroup(
+        parser,
+        "Clash 自动切换IP模式",
+        "扫描过程中通过 Clash 外部控制器后台轮转节点，实现自动更换出口 IP。\n"
+        "前提: ①已在 Clash 开启外部控制器(external-controller) ②外部控制器监听地址正确 ③已设置 API 密钥(secret)",
+    )
+    clash.add_option(
+        "--clash",
+        action="store_true",
+        dest="clash_mode",
+        help="启用 Clash 自动切换IP模式(所有扫描请求走本地 Clash 代理端口并后台轮转节点)",
+    )
+    clash.add_option(
+        "--clash-api",
+        action="store",
+        dest="clash_api",
+        metavar="地址",
+        help="Clash 外部控制器监听地址(external-controller)，默认 http://127.0.0.1:9090",
+    )
+    clash.add_option(
+        "--clash-secret",
+        action="store",
+        dest="clash_secret",
+        metavar="密钥",
+        help="Clash 外部控制器 API 密钥(secret)。建议在 Clash 配置中设置；也可用环境变量 DIRSEARCHPLUS_CLASH_SECRET",
+    )
+    clash.add_option(
+        "--clash-port",
+        action="store",
+        type="int",
+        dest="clash_port",
+        metavar="端口",
+        help="Clash 本地混合代理端口(mixed-port)，扫描请求经此端口出口，默认 7899",
+    )
+    clash.add_option(
+        "--clash-interval",
+        action="store",
+        type="int",
+        dest="clash_interval",
+        metavar="秒",
+        help="自动切换节点的间隔秒数，默认 30",
+    )
+
     # === 高级设置组 ===
     advanced = OptionGroup(parser, "高级设置")
     advanced.add_option(
@@ -591,6 +635,7 @@ def parse_arguments():
     parser.add_option_group(general)
     parser.add_option_group(request)
     parser.add_option_group(connection)
+    parser.add_option_group(clash)
     parser.add_option_group(advanced)
     parser.add_option_group(view)
     parser.add_option_group(output)
