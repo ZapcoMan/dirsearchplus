@@ -238,4 +238,4 @@ pytest tests/utils -v         # 运行指定目录
 ---
 
 *最后更新时间：2026-10-07*
-*最近变更：稳定性与安全加固（[0.1.6]，详见 [docs/changelog.md](docs/changelog.md)）*
+*最近变更：稳定性与安全加固（[1.5.12]，详见 [docs/changelog.md](docs/changelog.md)）*
