@@ -3,9 +3,11 @@
 > 本文档从主 [README](../README.md) 抽离，集中记录 dirsearchPlus 的版本变更与历史提交。
 > 返回文档目录：[docs/README.md](README.md)
 
-格式参考 [Keep a Changelog](https://keepachangelog.com/)，版本号遵循语义化命名。
+格式参考 [Keep a Changelog](https://keepachangelog.com/)，版本号与代码中 `lib/core/settings.py` 的 `VERSION` 保持一致（`<主>.<次>.<修订>`）。
 
-## [0.1.6] - 稳定性与安全加固
+> **编号说明**：所有版本号以代码 `lib/core/settings.py` 的 `VERSION` 为准，并按发布顺序从当前版本依次递减 1 排布（当前 `[1.5.12]`，上一版 `[1.5.11]`，以此类推）。早期文档中的 `0.1.x`、以及 dirsearch 引擎时期的 `3.x` / `2023.x` 记录，均已统一映射到该连续序列。
+
+## [1.5.12] - 稳定性与安全加固
 
 ### 新增功能
 - 新增运行时开关 `--debug` / `--secure` / `--insecure` 及环境变量 `DIRSEARCHPLUS_DEBUG` / `DIRSEARCHPLUS_INSECURE` / `DIRSEARCHPLUS_VERIFY_TLS`，集中控制日志与 TLS 校验（TLS 默认仍不校验）
@@ -22,7 +24,7 @@
 - 将多处静默 `except: pass` 补充为日志记录；`single_403pass.py` 不再吞掉异常
 - 修正 README 中错误的入口文件名（`dirsearchX.py` → `dirsearchplus.py`）
 
-## [0.1.5] - 新功能集成
+## [1.5.11] - 新功能集成
 
 ### 新增功能
 - 集成参数污染检测模块（HPP/HFP），用于检测 URL 参数重复 key、JSON 重复字段、表单 key 重复、数组展开解析差异及 Spring MVC 参数绑定漏洞等场景
@@ -32,14 +34,14 @@
 - 集成动态 API 枚举功能，基于行为推断发现隐藏 API
 - 优化各模块间的数据传递和协调工作
 
-## [0.1.4] - by ZapcoMan
+## [1.5.10] - by ZapcoMan
 
 ### 新增功能
 - 集成 SubFinder 子域名扫描模块，用于发现目标的子域名信息
 - 添加 `-d yes` 参数启用子域名扫描功能
 - 优化各模块间的数据传递和协调工作
 
-## [0.1.3] - by ZapcoMan
+## [1.5.9] - by ZapcoMan
 
 ### 新增功能
 - 集成 Packer-Fuzzer 模块，用于前端打包器检测和模糊测试
@@ -63,16 +65,20 @@
 - 添加 `-a` 或 `--all` 参数一键启用所有模块
 - 更新 API 接口扫描指南和使用示例
 
-## 更早版本
+## [1.5.8] - 全模块一键启用
 
-### 3.3 版本新增
+### 新增功能
 - 添加 `-a` 或 `--all` 参数，可一键启用所有功能模块
 
-### 3.1 版本新增
+## [1.5.7] - Packer-Fuzzer 与 Swagger 集成
+
+### 新增功能
 - 集成 Packer-Fuzzer 模块，用于前端打包器检测和模糊测试
 - 集成 Swagger 未授权访问扫描功能
 
-### 2023.5.11 优化更新
+## [1.5.6] - 单路径 403 绕过
+
+### 改进优化
 - 优化原版 403bypasser，支持单独对某一指定路径进行 403 绕过
 - 添加 `single_403pass.py` 脚本，可对单个 URL 的指定路径进行 403 绕过
 

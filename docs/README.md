@@ -16,7 +16,7 @@
 |------|------|--------|
 | [modules.md](modules.md) | 各增强模块详解：403 绕过、JS 收集、指纹、Packer-Fuzzer、Swagger、子域名、参数污染、SSRF、动态 API | 想逐个了解模块用法与参数 |
 | [api-scanning.md](api-scanning.md) | API 接口扫描指南：框架专用字典、响应过滤、RESTful 策略、认证头 | 扫描前后端分离 / Java 框架目标 |
-| [changelog.md](changelog.md) | 更新日志与历史提交记录（[0.1.6] 起） | 想了解版本演进与最近的修复 |
+| [changelog.md](changelog.md) | 更新日志与历史提交记录（当前版本 [1.5.12]，已与代码 `VERSION` 对齐） | 想了解版本演进与最近的修复 |
 
 ## 🔗 快速跳转
 
