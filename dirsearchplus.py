@@ -694,6 +694,7 @@ def _setup_clash_mode():
     from script.clash_proxy_rotator import ClashProxyRotator, ClashControllerError
 
     current_time = time.strftime("%H:%M:%S")
+    secret = options.get("clash_secret") or ""
     print(set_color(f"[{current_time}] 已启用 Clash 自动切换IP模式", fore="cyan", style="bright"))
     print(set_color(
         f"[{current_time}] 前置要求：Clash 必须已开启外部控制器(external-controller)，"
@@ -701,8 +702,21 @@ def _setup_clash_mode():
         fore="cyan"))
     print(set_color(
         f"[{current_time}] 当前配置：控制器={options['clash_api']} | "
-        f"本地代理端口={options['clash_port']} | 切换间隔={options['clash_interval']}s",
+        f"本地代理端口={options['clash_port']} | 切换间隔={options['clash_interval']}s | "
+        f"secret={'已提供' if secret else '未提供(若Clash配了secret会报401/403)'}",
         fore="cyan"))
+
+    # 冲突提醒：Clash 模式会接管 options["proxies"]，与手动代理参数互斥
+    conflicting = []
+    if options.get("proxies"):
+        conflicting.append("--proxy/--proxy-file")
+    if options.get("tor"):
+        conflicting.append("--tor")
+    if conflicting:
+        print(set_color(
+            f"[{current_time}] 警告：检测到已设置 {'、'.join(conflicting)}，"
+            "Clash 模式会用本地代理端口覆盖这些代理设置。",
+            fore="yellow"))
 
     rotator = ClashProxyRotator(
         clash_api=options["clash_api"],
@@ -721,10 +735,8 @@ def _setup_clash_mode():
     rotator.start()
     # 注入本地代理：所有扫描请求经该端口，节点由后台线程轮转
     options["proxies"] = [rotator.get_proxy_url()]
-    print(set_color(
-        f"[{current_time}] Clash 轮转已运行：可用节点={len(rotator.get_nodes())} | "
-        f"当前节点={rotator.get_current_node()} | 代理={rotator.get_proxy_url()}",
-        fore="green"))
+    print(set_color(f"[{current_time}] Clash 轮转已运行：{rotator.describe()}", fore="green"))
+    print(set_color(f"[{current_time}] 提示：加 --debug 可在控制台查看每次节点切换详情。", fore="cyan"))
     return rotator
 
 
@@ -765,7 +777,7 @@ def run():
         if _clash_rotator is not None:
             _clash_rotator.stop()
             current_time = time.strftime("%H:%M:%S")
-            print(set_color(f"[{current_time}] Clash 自动切换IP模式已停止", fore="cyan"))
+            print(set_color(f"[{current_time}] Clash 自动切换IP模式已停止：{_clash_rotator.describe()}", fore="cyan"))
 
 if __name__ == "__main__":
     run()

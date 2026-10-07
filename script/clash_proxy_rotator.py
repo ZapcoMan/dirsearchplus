@@ -11,8 +11,9 @@ Clash 节点自动轮转代理 - 依赖库
 2. 已正确设置“外部控制器监听地址 external-controller”（默认 http://127.0.0.1:9090）；
 3. 已设置“外部控制器 API 密钥 secret”（若配置了 secret，则必须提供正确的密钥）。
 
-本模块不打印业务日志到 stdout（除显式调用 report_* 外），仅通过项目统一的 logger 记录，
-以便被 dirsearchPlus 的 --debug / 日志文件机制接管。
+本模块不向 stdout 打印业务日志，仅通过项目统一的 logger 记录，
+以便被 dirsearchPlus 的 --debug / 日志文件机制接管；面向用户的启动/停止提示
+由调用方(dirsearchplus.py)基于 describe()/stats() 输出。
 """
 
 import time
@@ -33,7 +34,10 @@ class ClashAPI:
     """对 Clash 外部控制器 RESTful API 的薄封装"""
 
     def __init__(self, base_api: str, secret: str):
-        # 去掉末尾斜杠，统一拼接
+        # 容错：用户常省略协议头(如 127.0.0.1:9090)，自动补 http://；去除末尾斜杠统一拼接
+        base_api = (base_api or "").strip()
+        if base_api and not base_api.lower().startswith(("http://", "https://")):
+            base_api = "http://" + base_api
         self.base_api = base_api.rstrip("/")
         self.headers = {"Authorization": f"Bearer {secret}"} if secret else {}
 
@@ -113,7 +117,8 @@ class ClashProxyRotator:
         switch_interval: int = 30,
     ):
         self.api = ClashAPI(clash_api, clash_secret)
-        self.clash_api = clash_api
+        # 保存规范化后的地址，供错误提示展示，避免协议头缺失造成误解
+        self.clash_api = self.api.base_api
         self.proxy_port = clash_proxy_port
         self.switch_interval = max(1, int(switch_interval))
 
@@ -123,6 +128,9 @@ class ClashProxyRotator:
         self._running: bool = False
         self._thread: Optional[threading.Thread] = None
         self._lock = threading.Lock()
+        # 运行时统计：成功切换次数 / 失败次数，供状态展示
+        self._switch_ok: int = 0
+        self._switch_fail: int = 0
 
     # ------------------------------------------------------------------ #
     # 前置校验
@@ -134,12 +142,28 @@ class ClashProxyRotator:
         """
         try:
             self.api.get_proxies()
-        except requests.exceptions.RequestException as e:
+        except ClashControllerError:
+            # 鉴权类错误(401/403)已带明确提示，直接上抛
+            raise
+        except requests.exceptions.Timeout as e:
+            raise ClashControllerError(
+                f"连接 Clash 外部控制器({self.clash_api})超时。"
+                "请确认地址与端口正确、Clash 正在运行；如为远程控制器请检查防火墙/网络。"
+            )
+        except requests.exceptions.SSLError as e:
+            raise ClashControllerError(
+                f"与 Clash 外部控制器({self.clash_api})建立 TLS 连接失败：证书校验未通过。"
+                "若控制器为自签证书，可加 --insecure 或设置 DIRSEARCHPLUS_VERIFY_TLS 关闭校验。"
+            )
+        except requests.exceptions.ConnectionError as e:
             raise ClashControllerError(
                 "无法连接到 Clash 外部控制器 "
                 f"({self.clash_api})。请确认：①已在 Clash 配置中开启 external-controller；"
                 "②外部控制器监听地址(--clash-api)填写正确；③Clash 正在运行。"
-                f" 底层错误: {e}"
+            )
+        except requests.exceptions.RequestException as e:
+            raise ClashControllerError(
+                f"访问 Clash 外部控制器({self.clash_api})失败：{e}"
             )
 
         self._group_name = self.api.auto_detect_group()
@@ -186,14 +210,25 @@ class ClashProxyRotator:
         logger.debug("Clash 轮转已停止")
 
     def _auto_switch_loop(self):
+        consecutive_fail = 0
         while self._running:
-            # 先睡一个周期再切换，保证首个周期使用当前节点
+            # 先睡一个周期再切换，保证首个周期使用当前节点（支持提前 stop 响应）
             slept = 0
             while self._running and slept < self.switch_interval:
                 time.sleep(0.5)
                 slept += 0.5
-            if self._running:
-                self.switch_node()
+            if not self._running:
+                break
+            # switch_node 内部已捕获异常并回滚，这里只负责记录连续失败，避免静默失效
+            if self.switch_node():
+                consecutive_fail = 0
+            else:
+                consecutive_fail += 1
+                if consecutive_fail in (3, 10):
+                    logger.warning(
+                        f"Clash: 已连续 {consecutive_fail} 次切换失败，"
+                        "出口 IP 可能未变化，请检查外部控制器/节点是否可用。"
+                    )
 
     # ------------------------------------------------------------------ #
     # 节点操作
@@ -217,11 +252,13 @@ class ClashProxyRotator:
             target = self._nodes[self._current_index]
             try:
                 self.api.switch_proxy(self._group_name, target)
-                logger.debug(f"Clash: 已切换节点 -> {target}")
+                self._switch_ok += 1
+                logger.debug(f"Clash: 已切换节点 -> {target} (累计成功 {self._switch_ok} 次)")
                 return True
             except Exception as e:
                 # 切换失败回滚，避免本地索引与 Clash 实际节点脱节
                 self._current_index = prev_index
+                self._switch_fail += 1
                 logger.error(f"Clash: 切换节点失败(已回滚): {e}")
                 return False
 
@@ -244,3 +281,21 @@ class ClashProxyRotator:
 
     def get_nodes(self) -> List[str]:
         return list(self._nodes)
+
+    def stats(self) -> dict:
+        """返回运行时统计，供上层展示/日志使用"""
+        return {
+            "group": self._group_name,
+            "nodes": len(self._nodes),
+            "current": self.get_current_node(),
+            "switch_ok": self._switch_ok,
+            "switch_fail": self._switch_fail,
+        }
+
+    def describe(self) -> str:
+        """返回一行简洁状态描述，统一供主程序启动/停止提示使用"""
+        s = self.stats()
+        return (
+            f"策略组={s['group']} | 可用节点={s['nodes']} | 当前节点={s['current']} | "
+            f"代理={self.get_proxy_url()} | 切换成功={s['switch_ok']} 次/失败={s['switch_fail']} 次"
+        )
