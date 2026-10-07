@@ -4,7 +4,6 @@ import os
 import tldextract
 import sys
 import time
-import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from queue import Queue
 from colorama import init, Fore, Style
@@ -217,7 +216,6 @@ class OptimizedQuery():
 
         # 结果存储
         self.results = []
-        self.lock = threading.Lock()
 
     def _create_optimized_session(self):
         """
@@ -432,7 +430,7 @@ class OptimizedProgram():
         max_workers (int): 最大工作线程数，默认为20
     """
 
-    def __init__(self, urllist, dirlist, max_workers=40):
+    def __init__(self, urllist, dirlist, max_workers=20):
         self.urllist = urllist
         self.dirlist = dirlist
         self.max_workers = max_workers

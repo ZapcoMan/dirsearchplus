@@ -10,6 +10,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from lib.view.terminal import output
 from lib.view.colors import set_color
+from lib.core.logger import logger
 
 # 从单独的文件导入敏感信息正则表达式模式
 from lib.core.sensitive_patterns import SENSITIVE_PATTERNS
@@ -160,7 +161,8 @@ def Extract_html(URL):
         raw = requests.get(URL, headers=header, timeout=3, verify=False)
         raw = raw.content.decode("utf-8", "ignore")
         return raw
-    except:
+    except Exception as e:
+        logger.debug(f"获取页面源码失败 {URL}: {e}")
         return None
 
 
@@ -436,6 +438,7 @@ def find_by_file(file_path, js=False):
                             # 保存检测到的敏感信息到文件
                             save_sensitive_info(sensitive_info, link)
                 except Exception as e:
+                    logger.debug(f"检测JS文件 {link} 敏感信息失败: {e}")
                     pass
         if temp_urls == None: continue
         current_time = time.strftime("%H:%M:%S")
@@ -487,7 +490,8 @@ def giveresult(urls, domian):
             title_tag = soup.find('title')
             if title_tag:
                 title = title_tag.text
-        except:
+        except Exception as e:
+            logger.debug(f"存活测试请求失败 {url}: {e}")
             status_code = 404
 
         if status_code in (200, 201, 204):
@@ -510,8 +514,8 @@ def giveresult(urls, domian):
                     try:
                         with open('jsfind403list.txt', 'a+') as f:
                             f.write(str(url) + '\n')
-                    except:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"写入 jsfind403list.txt 失败: {e}")
 
     def main():
         """
