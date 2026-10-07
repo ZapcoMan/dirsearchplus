@@ -160,9 +160,6 @@ cython_debug/
 #.idea/
 /reports/*/*.txt
 /reports/*.csv
-/script/Packer-Fuzzer/reports/*.docx
-/script/Packer-Fuzzer/reports/*.html
-/script/Packer-Fuzzer/reports/*.pdf
 /db/*.cache
 /reports/*.json
 lib/Packer-Fuzzer/reports/*.docx

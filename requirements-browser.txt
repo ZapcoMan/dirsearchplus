@@ -1,0 +1,20 @@
+# Swagger 扫描(-swagger yes)所需的可选浏览器/报表依赖
+# 仅 script/swagger.py 使用 selenium(动态页面渲染) 与 openpyxl(Excel 导出)；
+# 其余为核心 requirements.txt 中未包含、且只有这两者才会拉取的传递依赖。
+#
+# 安装方式（在核心依赖之上）：
+#   pip install -r requirements-browser.txt
+#
+# 未安装时，程序会跳过 -swagger 阶段而不会中断整条扫描流水线。
+selenium==4.50.0
+trio==0.34.0
+trio-websocket==0.12.2
+wsproto==1.3.2
+h11==0.16.0
+outcome==1.3.0.post0
+sniffio==1.3.1
+sortedcontainers==2.4.0
+attrs==26.1.0
+websocket-client==1.9.2
+openpyxl==3.1.5
+et_xmlfile==2.0.0
