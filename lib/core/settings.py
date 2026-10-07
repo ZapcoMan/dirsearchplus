@@ -5,7 +5,7 @@ import string
 from lib.utils.file import FileUtils
 
 # 版本号格式：<主版本>.<次版本>.<修订版>[.<月份>]
-VERSION = "1.5.11 "
+VERSION = "1.5.12 "
 author = "ZapcoMan"
 # 启动时显示的横幅信息（ASCII艺术字）
 BANNER = rf"""
